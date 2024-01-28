@@ -1,2 +1,2 @@
 # Applied
-[Airport Traffic] (airport-traffic.html)
+[Airport Traffic](airport-traffic.html)
