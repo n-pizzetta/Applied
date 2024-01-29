@@ -232,12 +232,13 @@ Here we visualize how is the general tendance with all our airports.
 ```{r}
 # EU
 eu_sum <- eu_countries_2019 %>% group_by(EU_2019) %>% count()
-eu_sum <- eu_sum %>% mutate(EU_2019 = ifelse(EU_2019 == 1, "EU member", "EU non member"))
+eu_sum <- eu_sum %>% mutate(EU_2019 = ifelse(EU_2019 == 1, "Member", "Non member"))
 
 # Plot
 ggplot(eu_sum, aes(x = EU_2019, y = n, fill = EU_2019)) +
   geom_bar(stat = "identity") +
-  labs(title = "Repartition of european countries", x = "Category", y = "count") +
+  geom_text(aes(label = n), vjust = 3, colour = 'white', size = 4) +
+  labs(title = "Repartition of european countries", x = "Category", y = "count", fill = "European Union (2019)") +
   theme_minimal()
 ```
 
@@ -288,7 +289,7 @@ Quick view of the 3 airports with most traffic in our dataset.
 
 ### CDG
 
-Paris Charles de Gaulles Airport
+#### Paris Charles de Gaulles Airport
 
 ```{r}
 charles <- traffic_checked %>% dplyr::filter(Airport == "PARIS-CHARLES DE GAULLE airport")
@@ -307,7 +308,7 @@ dygraphs::dygraph(data=charles_ts, main="Passengers per month at Paris Charles d
 
 ### LHR
 
-London Heathrow Airport
+#### London Heathrow Airport
 
 ```{r}
 heathrow <- traffic_checked %>% dplyr::filter(Airport == "LONDON HEATHROW airport")
@@ -326,7 +327,7 @@ dygraphs::dygraph(data=heathrow_ts, main="Passengers per month at London Heathro
 
 ### AMS
 
-Amsterdam Schiphol airport
+#### Amsterdam Schiphol airport
 
 ```{r}
 schiphol <- traffic_checked %>% dplyr::filter(Airport == "AMSTERDAM/SCHIPHOL airport")
@@ -357,6 +358,13 @@ charles_ts19 <- charles %>% dplyr::select(4) %>% ts(frequency = 12, start = c(20
 ## Study on our data
 
 ### Stationarity and parameters
+
+As first though, we saw previously on the graph of the Paris Charles de Gaulle airport that there is an ascending trend. This violates the asumption of same mean at all time in the stationarity properties. Also, distinct seasonal patterns are present which is also a violation of the previous requirement.
+We thus already think that our time series are not stationary.
+
+&nbsp;
+
+We will verify it as it follows.
 
 #### ADF
 We test wether our time serie is stationary or not with the Augmented Dickey-Fuller Test.
@@ -501,13 +509,13 @@ checkresiduals(sarima_model)
 ```
 Interpretations :
 
-- *The Ljung-Box test*, we got $p-value = 1.416*10^{-08} < 0.05$ suggest a significant autocorrelation at some of the lags used in the test (up to lag 24 here). Our model may not capture adequately  all the autocorrelation in our data.
+- **The Ljung-Box test**, we got $p-value = 1.416*10^{-08} < 0.05$ suggest a significant autocorrelation at some of the lags used in the test (up to lag 24 here). Our model may not capture adequately  all the autocorrelation in our data.
 
-- *The residuals time series plot*, helps us to check if our residuals look like white noise (meaning that our model has captured the underlying process correctly). Here, our residuals fluctuate around zero, we do not see obvious patterns which is a good sign.
+- **The residuals time series plot**, helps us to check if our residuals look like white noise (meaning that our model has captured the underlying process correctly). Here, our residuals fluctuate around zero, we do not see obvious patterns which is a good sign.
 
-- *The ACF of residuals*, helps us to check the autocorrelation within our residuals. In a good model we would expect the bars to be between both dashed blue lines. In our case, we see some of the bars outside the confidence intervals. Thus, there may be some autocorrelation in the residuals that our model does not capture.
+- **The ACF of residuals**, helps us to check the autocorrelation within our residuals. In a good model we would expect the bars to be between both dashed blue lines. In our case, we see some of the bars outside the confidence intervals. Thus, there may be some autocorrelation in the residuals that our model does not capture.
 
-- *The histogram and density plot*, shows the distribution of the residuals along with the density curve of the normal distribution for comparison. By assumption, our residuals should look like a normal distribution with a mean of zero. Here, we have large pikes around zero, but also some big deviations around. Our residuals may not be normally distributed.
+- **The histogram and density plot**, shows the distribution of the residuals along with the density curve of the normal distribution for comparison. By assumption, our residuals should look like a normal distribution with a mean of zero. Here, we have large pikes around zero, but also some big deviations around. Our residuals may not be normally distributed.
 
 
 ### Prediction
