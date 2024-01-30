@@ -3,10 +3,10 @@ title: Airport traffic
 subtitle: Applied
 date: "2023-12-05"
 author: 
-- name: "Louis Rodriguez"
-- name: "Sigurd Saue"
 - name: "Adrien Berard"
 - name: "Nathan Pizzetta"
+- name: "Louis Rodriguez"
+- name: "Sigurd Saue"
 
 format:
   html:
@@ -229,6 +229,9 @@ Here we visualize how is the general tendance with all our airports.
 
 ### EU members
 
+In our data, we do not have only countries taking part of the European Union but also other european countries that are not member of it.
+We thus plot there distribution to visualize it.
+
 ```{r}
 # EU
 eu_sum <- eu_countries_2019 %>% group_by(EU_2019) %>% count()
@@ -238,10 +241,23 @@ eu_sum <- eu_sum %>% mutate(EU_2019 = ifelse(EU_2019 == 1, "Member", "Non member
 ggplot(eu_sum, aes(x = EU_2019, y = n, fill = EU_2019)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = n), vjust = 3, colour = 'white', size = 4) +
-  labs(title = "Repartition of european countries", x = "Category", y = "count", fill = "European Union (2019)") +
+  labs(title = "Repartition of european countries", x = "", y = "Number of countries", fill = "European Union (2019)") +
   theme_minimal()
 ```
+### Ranking on the total airport traffic
 
+We ranked our countries by their total passenger traffic. This will help us to make an analysis on the most relevant airport of our dataset.
+
+```{r}
+ggplot2::ggplot(airports_best_ranked, aes(x = sumPassengers, y = reorder(Country, sumPassengers))) +
+  geom_bar(stat = "identity", fill = "green") +
+  labs(title = "Ranking of Countries based on their traffic",
+       x = "Total passengers carried",
+       y = "Country")
+```
+
+
+### Global trend on our data
 
 :::{.panel-tabset}
 
@@ -359,15 +375,32 @@ charles_ts19 <- charles %>% dplyr::select(4) %>% ts(frequency = 12, start = c(20
 
 ### Stationarity and parameters
 
-As first though, we saw previously on the graph of the Paris Charles de Gaulle airport that there is an ascending trend. This violates the asumption of same mean at all time in the stationarity properties. Also, distinct seasonal patterns are present which is also a violation of the previous requirement.
+As first though, we saw previously on the graph of the Paris Charles de Gaulle airport that there is an ascending trend. This violates the assumption of same mean at all time in the stationarity properties. Also, distinct seasonal patterns are present which is also a violation of the previous requirement.
 We thus already think that our time series are not stationary.
+
+&nbsp;
+
+The positive trend seems to be linear which suggests that a first difference could be sufficient to detrend it. In the case of curve we would have preferred to previously transform our data and then make a first difference.
+But before doing a first difference we have to take the seasonality into account. If after the seasonal differencing the trend remains, then we will apply a forst difference.
 
 &nbsp;
 
 We will verify it as it follows.
 
+&nbsp;
+
+First, we study the non-seasonal behavior. It is likely that the short run non-seasonal components will contribute to the model.
+We thus take a look at the ACF and PACF behavior under the seasonality lag (12) to assess what non-seasonal components might be.
+
+### No differencing
+
+On both ACF and PACF graphs, the blue dashed lines represent values beyond which the ACF and PACF are significantly different from zero at $5\%$ level. These lines represent the bounds of the $95\%$ confidence intervals.
+A bar above are under these lines would suppose a correlation. On the contrary, a bar between these two lines would suppose zero correlation.
+
+:::{.panel-tabset}
+
 #### ADF
-We test wether our time serie is stationary or not with the Augmented Dickey-Fuller Test.
+We test whether our time series is stationary or not with the Augmented Dickey-Fuller Test.
 
 ```{r}
 charles_ts19 <- na.omit(charles_ts19)
@@ -381,13 +414,6 @@ Our result with a $p-value = 0.01 < 0.05$ let us suppose that there is stationar
 &nbsp;
 
 This let us suppose that we do not need to differenciate `charles_ts19`
-
-#### Graphs
-
-On both graphs, the blue dashed lines represent values beyond which the ACF and PACF are significantly different from zero at $5\%$ level. These lines represent the bounds of the $95\%$ confidence intervals.
-A bar above are under these lines would suppose a correlation. On the contrary, a bar between these two lines would suppose zero correlation.
-
-:::{.panel-tabset}
 
 #### ACF
 
@@ -433,16 +459,20 @@ The other lags do not appear to be significantly different from zero, suggesting
 
 :::
 
-#### Seasonal differencing
+### Seasonal differencing
 
 We will take the seasonality into account, which means that we make a difference at lag 12 because of our monthly data.
 
 ```{r}
 # Difference
 charles_ts19_diff <- diff(charles_ts19, lag = 12)
+plot(charles_ts19_diff, col = 'blue', xlab = "Year", ylab = "Passengers",
+     main = "CDG passengers after seasonal differencing")
+abline(h = mean(charles_ts19_diff), col = "red", lty = 2)
 ```
 
-After differencing, we check again for stationarity. We thus run the ADF test with the ACF and PACF graphs.
+After differencing, we check again for stationarity. Here, taking a look at the graph, it seems that there is no remaining trend.
+To validate our proposal, we run the ADF test with the ACF and PACF graphs and look for stationarity.
 
 :::{.panel-tabset}
 
@@ -477,23 +507,29 @@ forecast::ggPacf(charles_ts19_diff) +
   ggplot2::ggtitle("Sample PACF for CDG airport after differencing")
 ```
 
+:::`
 
-:::
+## Modeling
 
-Suggested coefficients with an automated function of R : `auto.arima`
+### Automated choice
+
+:::{.panel-tabset}
+
+#### Model
+
+R has an automated function that can help us to build our model. We thus run it to get the suggested coefficients with : `auto.arima`.
 
 ```{r}
 # Get suggestion
 forecast::auto.arima(charles_ts19)
 ```
-### Model
 
-We now construct our model, taking into account our previouse analysis.
+We now construct our model, taking into account our previous analysis.
 We thus have seasonality, stationarity after differencing (taking into account the seasonality), and indications with the ACF and PACf about the value of AR's and MA's parameters.
 
 &nbsp;
 
-Based on ACF and PACF, we decide to start with an AR(1) non-seasonal component, and a seasonal difference.
+Based on ACF, PACF and the suggested coefficient, we decide to start with an AR(1) non-seasonal component, and a seasonal difference.
 We also include a seasonal MA(1) component due to the marginal significance at lag 12 in the ACF.
 
 
@@ -504,12 +540,15 @@ sarima_model <- Arima(charles_ts19, order=c(1,0,0), seasonal=list(order=c(0,1,1)
 
 Now that we have build our model, we check the residuals.
 
+#### Residuals
+
+Interpretation of the residuals :
+
 ```{r}
 checkresiduals(sarima_model)
 ```
-Interpretations :
 
-- **The Ljung-Box test**, we got $p-value = 1.416*10^{-08} < 0.05$ suggest a significant autocorrelation at some of the lags used in the test (up to lag 24 here). Our model may not capture adequately  all the autocorrelation in our data.
+- **The Ljung-Box test**, we got $p-value = 1.416*10^{-08} < 0.05$, we reject the null hypothesis. This suggests that the error has a significant autocorrelation at some of the lags used in the test (up to lag 24 here). Our model may not capture adequately  the time-dependency.
 
 - **The residuals time series plot**, helps us to check if our residuals look like white noise (meaning that our model has captured the underlying process correctly). Here, our residuals fluctuate around zero, we do not see obvious patterns which is a good sign.
 
@@ -518,7 +557,7 @@ Interpretations :
 - **The histogram and density plot**, shows the distribution of the residuals along with the density curve of the normal distribution for comparison. By assumption, our residuals should look like a normal distribution with a mean of zero. Here, we have large pikes around zero, but also some big deviations around. Our residuals may not be normally distributed.
 
 
-### Prediction
+#### Prediction
 
 ```{r}
 # Prediction of the 12 next months
@@ -527,4 +566,124 @@ forecasts <- forecast(sarima_model, h=12)
 plot(forecasts)
 ```
 
+:::
 
+### Manual parameters choice
+
+:::{.panel-tabset}
+
+#### AIC
+```{r}
+# AIC
+PQmax = 2
+Imax = 1
+
+min_AIC <- Inf
+min_AIC_params <- NULL
+
+results_AIC <- data.frame(ar = numeric(),
+                      ma = numeric(),
+                      AR = numeric(),
+                      MA = numeric(),
+                      i = numeric(),
+                      I = numeric(),
+                      AIC = numeric())
+
+
+for (ar in 0:PQmax) {
+  for (ma in 0:PQmax) {
+    for (AR in 0:PQmax) {
+      for (MA in 0:PQmax) {
+        for (i in 0:Imax) {
+          for (I in 0:Imax) {
+            fit <- Arima(charles_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
+            results_AIC <- rbind(results_AIC, c(ar, i, ma, AR, I, MA, AIC(fit)))
+            
+            # Check if the current AIC is the minimum
+            if (AIC(fit) < min_AIC) {
+              min_AIC <- AIC(fit)
+              min_AIC_params <- c(ar, i, ma, AR, I, MA)
+            }
+          }
+        }
+      }
+    }
+  }
+}
+results_AIC <- results_AIC[order(results_AIC$X6523.85810561624),]
+results_AIC
+
+```
+
+#### BIC
+
+```{r}
+# BIC
+PQmax = 2
+Imax = 1
+
+min_BIC <- Inf
+min_BIC_params <- NULL
+
+results_BIC <- data.frame(ar = numeric(),
+                      ma = numeric(),
+                      AR = numeric(),
+                      MA = numeric(),
+                      i = numeric(),
+                      I = numeric(),
+                      BIC = numeric())
+
+
+for (ar in 0:PQmax) {
+  for (ma in 0:PQmax) {
+    for (AR in 0:PQmax) {
+      for (MA in 0:PQmax) {
+        for (i in 0:Imax) {
+          for (I in 0:Imax) {
+            fit <- Arima(charles_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
+            results_BIC <- rbind(results_BIC, c(ar, i, ma, AR, I, MA, BIC(fit)))
+            
+            # Check if the current AIC is the minimum
+            if (BIC(fit) < min_BIC) {
+              min_BIC <- BIC(fit)
+              min_BIC_params <- c(ar, i, ma, AR, I, MA)
+            }
+          }
+        }
+      }
+    }
+  }
+}
+results_BIC <- results_BIC[order(results_BIC$X6530.60866243161),]
+results_BIC
+```
+
+:::
+
+&nbsp;
+
+:::{.panel-tabset}
+
+#### Model
+```{r}
+sarima_model2 <- Arima(charles_ts19, order=c(2,1,1), seasonal=list(order=c(0,1,1), period=12))
+```
+
+#### Residuals
+
+Interpretation of the residuals :
+
+```{r}
+checkresiduals(sarima_model2)
+```
+
+#### Prediction
+
+```{r}
+# Prediction of the 12 next months
+forecasts2 <- forecast(sarima_model2, h=12)
+#str(forecasts)
+plot(forecasts2)
+```
+
+:::
