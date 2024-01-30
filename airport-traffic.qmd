@@ -466,6 +466,8 @@ We will take the seasonality into account, which means that we make a difference
 ```{r}
 # Difference
 charles_ts19_diff <- diff(charles_ts19, lag = 12)
+
+# Plot
 plot(charles_ts19_diff, col = 'blue', xlab = "Year", ylab = "Passengers",
      main = "CDG passengers after seasonal differencing")
 abline(h = mean(charles_ts19_diff), col = "red", lty = 2)
@@ -507,11 +509,11 @@ forecast::ggPacf(charles_ts19_diff) +
   ggplot2::ggtitle("Sample PACF for CDG airport after differencing")
 ```
 
-:::`
+:::
 
 ## Modeling
 
-### Automated choice
+### Automated parameters choice
 
 :::{.panel-tabset}
 
@@ -524,14 +526,7 @@ R has an automated function that can help us to build our model. We thus run it 
 forecast::auto.arima(charles_ts19)
 ```
 
-We now construct our model, taking into account our previous analysis.
-We thus have seasonality, stationarity after differencing (taking into account the seasonality), and indications with the ACF and PACf about the value of AR's and MA's parameters.
-
-&nbsp;
-
-Based on ACF, PACF and the suggested coefficient, we decide to start with an AR(1) non-seasonal component, and a seasonal difference.
-We also include a seasonal MA(1) component due to the marginal significance at lag 12 in the ACF.
-
+Based on the results we create the following model.
 
 ```{r}
 # SARIMA
@@ -573,6 +568,10 @@ plot(forecasts)
 :::{.panel-tabset}
 
 #### AIC
+
+The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following :
+
 ```{r}
 # AIC
 PQmax = 2
@@ -610,12 +609,13 @@ for (ar in 0:PQmax) {
     }
   }
 }
-results_AIC <- results_AIC[order(results_AIC$X6523.85810561624),]
-results_AIC
-
+min_AIC_params
 ```
 
 #### BIC
+
+The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following :
 
 ```{r}
 # BIC
@@ -654,13 +654,12 @@ for (ar in 0:PQmax) {
     }
   }
 }
-results_BIC <- results_BIC[order(results_BIC$X6530.60866243161),]
-results_BIC
+min_BIC_params
 ```
 
 :::
 
-&nbsp;
+#### Parameters with AIC
 
 :::{.panel-tabset}
 
@@ -684,6 +683,34 @@ checkresiduals(sarima_model2)
 forecasts2 <- forecast(sarima_model2, h=12)
 #str(forecasts)
 plot(forecasts2)
+```
+
+:::
+
+#### Parameters with BIC
+
+:::{.panel-tabset}
+
+#### Model
+```{r}
+sarima_model3 <- Arima(charles_ts19, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
+```
+
+#### Residuals
+
+Interpretation of the residuals :
+
+```{r}
+checkresiduals(sarima_model3)
+```
+
+#### Prediction
+
+```{r}
+# Prediction of the 12 next months
+forecasts3 <- forecast(sarima_model3, h=12)
+#str(forecasts)
+plot(forecasts3)
 ```
 
 :::
