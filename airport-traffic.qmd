@@ -394,6 +394,22 @@ We thus take a look at the ACF and PACF behavior under the seasonality lag (12) 
 
 ### No differencing
 
+We start with anakysing our time serieswithout previous differencing.
+
+```{r}
+# Trend
+ts_decomposed <- decompose(charles_ts19)
+
+# Plot
+plot(charles_ts19, col = 'blue', xlab = "Year", ylab = "Passengers",
+     main = "CDG passengers before seasonal differencing")
+
+lines(ts_decomposed$trend,  col = 'red')
+
+legend("topright", legend = c("Original", "Trend"), col = c("blue", "red"), 
+       lty = c(1, 1), cex = 0.8)
+```
+
 On both ACF and PACF graphs, the blue dashed lines represent values beyond which the ACF and PACF are significantly different from zero at $5\%$ level. These lines represent the bounds of the $95\%$ confidence intervals.
 A bar above are under these lines would suppose a correlation. On the contrary, a bar between these two lines would suppose zero correlation.
 
@@ -401,6 +417,9 @@ A bar above are under these lines would suppose a correlation. On the contrary, 
 
 #### ADF
 We test whether our time series is stationary or not with the Augmented Dickey-Fuller Test.
+
+$H_0 : Unit root$
+$H_1 : Stationary$
 
 ```{r}
 charles_ts19 <- na.omit(charles_ts19)
@@ -411,9 +430,7 @@ print(adf_test)
 ```
 Our result with a $p-value = 0.01 < 0.05$ let us suppose that there is stationarity. We success to reject the null hypothesis that states a unit root (non-stationarity) in the time serie.
 
-&nbsp;
-
-This let us suppose that we do not need to differenciate `charles_ts19`
+This let us suppose that we could need to differenciate `charles_ts19`.
 
 #### ACF
 
@@ -454,7 +471,7 @@ We will interpret it as the following :
 forecast::ggPacf(charles_ts19) +
   ggplot2::ggtitle("Sample PACF for CDG airport")
 ```
-The PACF shows a significant spike at lag 1 and then cuts off, which indicates an AR(1) component may be present in our time series.
+The PACF shows a significant spike at lag 1 and then cuts off, which indicates that a non-seasonal AR(1) component may be present in our time series.
 The other lags do not appear to be significantly different from zero, suggesting that no higher-order AR terms are needed.
 
 :::
@@ -467,10 +484,17 @@ We will take the seasonality into account, which means that we make a difference
 # Difference
 charles_ts19_diff <- diff(charles_ts19, lag = 12)
 
+# Trend
+ts_stl <- stl(charles_ts19_diff, s.window = "periodic")
+
 # Plot
 plot(charles_ts19_diff, col = 'blue', xlab = "Year", ylab = "Passengers",
      main = "CDG passengers after seasonal differencing")
-abline(h = mean(charles_ts19_diff), col = "red", lty = 2)
+
+lines(ts_stl$time.series[, "trend"], col = 'red')
+
+legend("topright", legend = c("Original", "Trend"), col = c("blue", "red"), 
+       lty = c(1, 1), cex = 0.8)
 ```
 
 After differencing, we check again for stationarity. Here, taking a look at the graph, it seems that there is no remaining trend.
@@ -489,7 +513,8 @@ adf_test2 <- adf.test(charles_ts19_diff, alternative = "stationary")
 # Results of the ADF test
 print(adf_test2)
 ```
-We reject the null hypothesis at a $5\%$ significance level.
+Again, we reject the null hypothesis at a $5\%$ significance level.
+Which means that we still have stationarity in our time series.
 
 #### ACF
 
@@ -559,6 +584,13 @@ checkresiduals(sarima_model)
 forecasts <- forecast(sarima_model, h=12)
 #str(forecasts)
 plot(forecasts)
+```
+
+### Summary
+
+```{r}
+# Informartion on the model
+sarima_model
 ```
 
 :::
@@ -684,6 +716,13 @@ forecasts2 <- forecast(sarima_model2, h=12)
 #str(forecasts)
 plot(forecasts2)
 ```
+#### Summary
+
+```{r}
+# Informartion on the model
+sarima_model2
+```
+
 
 :::
 
@@ -712,5 +751,13 @@ forecasts3 <- forecast(sarima_model3, h=12)
 #str(forecasts)
 plot(forecasts3)
 ```
+
+### Summary
+
+```{r}
+# Informartion on the model
+sarima_model3
+```
+
 
 :::
