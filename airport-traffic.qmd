@@ -586,7 +586,7 @@ forecasts <- forecast(sarima_model, h=12)
 plot(forecasts)
 ```
 
-### Summary
+#### Summary
 
 ```{r}
 # Informartion on the model
@@ -752,7 +752,7 @@ forecasts3 <- forecast(sarima_model3, h=12)
 plot(forecasts3)
 ```
 
-### Summary
+#### Summary
 
 ```{r}
 # Informartion on the model
