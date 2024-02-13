@@ -54,10 +54,6 @@ This dataset includes the monthly number of passengers from 1998 to 2023 in diff
 # Global data
 traffic <- openxlsx::read.xlsx(xlsxFile="datasets/data_airports_APP.xlsx")
 
-# Alternative
-# path_file1 <- file.choose()
-# traffic <- openxlsx::read.xlsx(xlsxFile="path_file1")
-
 # Simplified label
 traffic <- traffic %>% dplyr::rename("Airport" = "REP_AIRP.(Labels)")
 ```
@@ -69,11 +65,6 @@ This dataset associates the airport with its country.
 # Country
 airports_names<- read.csv("datasets/airports_by_country.csv")
 
-# Alternative
-# path_file2 <- file.choose()
-# airports_names<- read.csv("path_fil2")
-
-
 airports_names$Airport <- paste(airports_names$Airport, "airport", sep = " ")
 airports_names <- airports_names %>% mutate(Country = ifelse(Country == "Chile", "Spain", Country))
 ```
@@ -84,12 +75,7 @@ This dataset associates 1 to European Union members and 0 to the rest.
 ```{r}
 # EU
 eu_countries_2019 <- read.csv("datasets/eu_countries_2019.csv")
-
-# Alternative
-# path_file3 <- file.choose()
-# eu_countries <- read.csv("path_file3")
 ```
-
 
 :::
 
