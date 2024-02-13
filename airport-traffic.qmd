@@ -52,7 +52,7 @@ This dataset includes the monthly number of passengers from 1998 to 2023 in diff
 
 ```{r, warning=FALSE, message=FALSE}
 # Global data
-traffic <- openxlsx::read.xlsx(xlsxFile="data_airports_APP.xlsx")
+traffic <- openxlsx::read.xlsx(xlsxFile="datasets/data_airports_APP.xlsx")
 
 # Alternative
 # path_file1 <- file.choose()
@@ -67,7 +67,7 @@ This dataset associates the airport with its country.
 
 ```{r}
 # Country
-airports_names<- read.csv("~/Documents/TSE/Cours/M1/Applied econometrics/Data bases/airports_names.csv")
+airports_names<- read.csv("datasets/airports_by_country.csv")
 
 # Alternative
 # path_file2 <- file.choose()
@@ -83,7 +83,7 @@ This dataset associates 1 to European Union members and 0 to the rest.
 
 ```{r}
 # EU
-eu_countries_2019 <- read.csv("~/Documents/TSE/Cours/M1/Applied econometrics/eu_countries_2019.csv")
+eu_countries_2019 <- read.csv("datasets/eu_countries_2019.csv")
 
 # Alternative
 # path_file3 <- file.choose()
@@ -113,14 +113,11 @@ Here we aggregate the country associated to each airport. We will need them for 
 ```{r}
 # Merged
 traffic_mg <- merge(traffic, airports_names, by = "Airport", all.x = TRUE)
-
-# Saving our new dataset
-write.csv(traffic_mg, file = "traffic_airp.csv", row.names = FALSE, na = "NA")
 ```
 
 &nbsp;
 
-We first check if in our data we have som duplicated lines.
+We first check if in our data we have some duplicated lines.
 ```{r}
 airports_dupli <- duplicated(traffic_mg)
 length(traffic_mg[airports_dupli,])
@@ -217,7 +214,7 @@ traffic_checked <- traffic_pivot %>% filter(Airport %in% airports_final_list)
 
 
 ```{r, echo=FALSE}
-write.csv(traffic_checked, file = "traffic_airp_final_dataset.csv", row.names = FALSE, na = "NA")
+write.csv(traffic_checked, file = "datasets/data_airports_cleaned_APP.csv", row.names = FALSE, na = "NA")
 styled_dt(traffic_checked)
 ```
 
