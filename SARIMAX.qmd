@@ -1,0 +1,24 @@
+#### Integrating the politics to our SARIMA model for CDG
+
+```{r}
+# Dataframe for Paris policies
+col_start_paris <- which(names(paris)=="Borders main EU period")
+col_end_paris <- which(names(paris)=="Negative tests period")
+paris_pol <- paris %>% select(which(names(paris)=="Date"), col_start_paris : col_end_paris)
+paris_pol$`Borders main EU period` <- as.numeric(as.character(paris_pol$`Borders main EU period`))
+paris_pol$`Borders non-EU period` <- as.numeric(as.character(paris_pol$`Borders non-EU period`))
+paris_pol$`Negative tests period` <- as.numeric(as.character(paris_pol$`Negative tests period`))
+paris_pol <- paris_pol[paris_pol$Date <= as.Date("2022-12-01"),]
+paris_pol <- paris_pol %>% dplyr::select(-"Date")
+
+# Dataframe for paris traffic
+paris_pass <- paris[1:3]
+
+# Time series object format
+paris_ts <- paris_pass %>% dplyr::select(3) %>% ts(frequency = 12, start = c(2002, 1), end = c(2022, 12))
+```
+
+```{r}
+library(forecast)
+sarimax_model <- Arima(paris_ts, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12), xreg=as.matrix(paris_pol))
+```
