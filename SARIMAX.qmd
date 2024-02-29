@@ -1,3 +1,93 @@
+### Politics
+
+We add 3 politics to the dataset :
+ - Borders main UE Period
+ - Border non-UE Period
+ - Negative tests Period
+
+We add them as dummies over the same period of our time series. We put a 1 when the policy is applied, and 0 when it is not. We did it on Excel, it was simplier than with R.
+
+
+```{r}
+# Global dataset
+airports_politics <- openxlsx::read.xlsx(xlsxFile="datasets/DATA_POLITICS.xlsx")
+
+# Dataset for politics and airports
+col_start <- which(names(airports_politics) == "2002-01")
+col_end <- which(names(airports_politics) == "2023-09")
+library(dplyr)
+airports <- airports_politics %>% dplyr::select(1, col_start : col_end)
+politics <- airports_politics %>% dplyr::select(1, (col_end+1):length(airports_politics))
+
+# Dataset for each policy
+
+#a
+col_start_a <- which(names(airports_politics) == "2002-01.a")
+col_end_a <- which(names(airports_politics) == "2023-09.a")
+policy_a <- airports_politics %>% dplyr::select(1, col_start_a : col_end_a)
+
+#b
+col_start_b <- which(names(airports_politics) == "2002-01.b")
+col_end_b <- which(names(airports_politics) == "2023-09.b")
+policy_b <- airports_politics %>% dplyr::select(1, col_start_b : col_end_b)
+
+#c
+col_start_c <- which(names(airports_politics) == "2002-01.c")
+col_end_c <- which(names(airports_politics) == "2023-09.c")
+policy_c <- airports_politics %>% dplyr::select(1, col_start_c : col_end_c)
+```
+
+```{r}
+# Pivot
+policy_a <- tidyr::pivot_longer(policy_a, cols = -c("Airport"), names_to = "Date", values_to = "Borders main EU period")
+policy_b <- tidyr::pivot_longer(policy_b, cols = -c("Airport"), names_to = "Date", values_to = "Borders non-EU period")
+policy_c <- tidyr::pivot_longer(policy_c, cols = -c("Airport"), names_to = "Date", values_to = "Negative tests period")
+airports <- tidyr::pivot_longer(airports, cols = -c("Airport"), names_to = "Date", values_to = "Passenger")
+
+# Formating date
+policy_a$Date <- gsub("\\.a$", "", policy_a$Date)
+policy_b$Date <- gsub("\\.b$", "", policy_b$Date)
+policy_c$Date <- gsub("\\.c$", "", policy_c$Date)
+```
+
+```{r}
+politics_formate <- merge(airports, policy_a, by = c("Airport", "Date"), all.x = TRUE)
+politics_formate <- merge(politics_formate, policy_b, by = c("Airport", "Date"), all.x = TRUE)
+politics_formate <- merge(politics_formate, policy_c, by = c("Airport", "Date"), all.x = TRUE)
+
+```
+
+```{r}
+# Merging
+politics_formate <- merge(airports, policy_a, by = c("Airport", "Date"), all.x = TRUE)
+politics_formate <- merge(politics_formate, policy_b, by = c("Airport", "Date"), all.x = TRUE)
+politics_formate <- merge(politics_formate, policy_c, by = c("Airport", "Date"), all.x = TRUE)
+
+# Date format
+politics_formate$Date <- zoo::as.Date(paste0(politics_formate$Date, "-01"), format="%Y-%m-%d")
+```
+
+```{r}
+# Kopenhagen
+kopen <- politics_formate %>% dplyr::filter(Airport == "KOBENHAVN/KASTRUP airport")
+# Madrid
+madrid <- politics_formate %>% dplyr::filter(Airport == "ADOLFO SUAREZ MADRID-BARAJAS airport")
+# Oslo
+oslo <- politics_formate %>% dplyr::filter(Airport == "OSLO/GARDERMOEN airport")
+# Paris
+paris <- politics_formate %>% dplyr::filter(Airport == "ADOLFO SUAREZ MADRID-BARAJAS airport")
+# Roma
+roma <- politics_formate %>% dplyr::filter(Airport == "ROMA/FIUMICINO airport")
+```
+
+
+
+
+
+
+
+
+
 #### Integrating the politics to our SARIMA model for CDG
 
 ```{r}
