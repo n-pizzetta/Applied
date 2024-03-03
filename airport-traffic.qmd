@@ -293,7 +293,7 @@ Formating the dataset as a time serie variable
 
 ```{r}
 # Time serie function
-charles_ts <- charles %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1))
+charles_ts <- charles %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2023, 7))
 ```
 
 ```{r, echo=FALSE}
@@ -377,8 +377,6 @@ oslo_ts <- oslo %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1))
 dygraphs::dygraph(data=oslo_ts, main="Passengers per month at Oslo Gardermoen")
 ```
 
-
-
 :::
 
 # Our Time Series model
@@ -386,19 +384,22 @@ dygraphs::dygraph(data=oslo_ts, main="Passengers per month at Oslo Gardermoen")
 First of all, we want to keep the data only until the end of 2019, period before COVID impact if we refer to our plots.
 
 ```{r}
+# Paris
 charles_ts19 <- charles %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
 charles_ts19 <- na.omit(charles_ts19)
+charles_ts20 <- charles %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2020, 09))
+# Madrid
 madrid_ts19 <- madrid %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
 madrid_ts19 <- na.omit(madrid_ts19)
+# Roma
 roma_ts19 <- roma %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
 roma_ts19 <- na.omit(roma_ts19)
+# Kobenhaven
 kobenhavn_ts19 <- kobenhavn %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
 kobenhavn_ts19 <- na.omit(kobenhavn_ts19)
+# Oslo
 oslo_ts19 <- oslo %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
 oslo_ts19 <- na.omit(oslo_ts19)
-
-
-
 ```
 
 
@@ -1127,7 +1128,7 @@ plot(forecasts_aic_charles)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model_aic_charles
 ```
 
@@ -1168,7 +1169,7 @@ plot(forecasts_bic_charles)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model_bic_charles
 ```
 
@@ -1212,7 +1213,7 @@ plot(forecasts_aic_madrid)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model_aic_madrid
 ```
 
@@ -1253,7 +1254,7 @@ plot(forecasts_bic_madrid)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model_bic_madrid
 ```
 
@@ -1295,7 +1296,7 @@ plot(forecasts_aic_roma)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model_aic_roma
 ```
 
@@ -1336,7 +1337,7 @@ plot(forecasts_bic_roma)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model_bic_roma
 ```
 
@@ -1378,7 +1379,7 @@ plot(sarima_model_aic_kob)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model_aic_kob
 ```
 
@@ -1419,7 +1420,7 @@ plot(forecasts_bic_kob)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model_bic_kob
 ```
 
@@ -1461,7 +1462,7 @@ plot(forecasts_aic_oslo)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model_aic_oslo
 ```
 
@@ -1502,7 +1503,7 @@ plot(forecasts_bic_oslo)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model_bic_oslo
 ```
 
@@ -1580,7 +1581,7 @@ madrid <- politics_formate %>% dplyr::filter(Airport == "ADOLFO SUAREZ MADRID-BA
 # Oslo
 oslo <- politics_formate %>% dplyr::filter(Airport == "OSLO/GARDERMOEN airport")
 # Paris
-paris <- politics_formate %>% dplyr::filter(Airport == "ADOLFO SUAREZ MADRID-BARAJAS airport")
+paris <- politics_formate %>% dplyr::filter(Airport == "PARIS-CHARLES DE GAULLE airport")
 # Roma
 roma <- politics_formate %>% dplyr::filter(Airport == "ROMA/FIUMICINO airport")
 ```
@@ -1618,5 +1619,70 @@ styled_dt(roma)
 ```
 
 :::
+
+### New SARIMA model for Paris
+
+#### Model
+
+```{r}
+# Ensure the external regressors are in the correct format
+#paris_20 <- paris[paris$Date<="2020-09-01"]
+#external_regressors <- as.matrix(paris[, c('Borders main EU period', 'Borders non-EU period', 'Negative tests period')])
+
+# Fit the SARIMAX model
+#auto.arima(charles_ts20, xreg = external_regressors, seasonal = TRUE)
+```
+
+
+```{r}
+sarima_model_aic_charles2 <- Arima(charles_ts20, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
+```
+
+#### Residuals
+
+Interpretation of the residuals :
+
+```{r}
+checkresiduals(sarima_model_aic_charles2)
+```
+
+#### Prediction
+
+
+
+```{r}
+# Forecast the next 32 periods
+forecasted_values <- forecast(sarima_model_aic_charles2, h=32)
+
+# For actual data: Create a tibble/data frame with time and actual values
+actual_data <- tibble(
+  time = as.Date(time(charles_ts)),
+  Value = as.vector(charles_ts),
+  Type = 'Actual'
+)
+
+# For forecasted data: Create a tibble/data frame with forecasted times and values
+forecast_data <- tibble(
+  time = as.Date(time(forecasted_values$mean)),
+  Value = as.vector(forecasted_values$mean),
+  Type = 'Forecast'
+)
+
+# Combine actual and forecasted data
+combined_data <- bind_rows(actual_data, forecast_data)
+
+# Plot using ggplot2
+ggplot(data = combined_data, aes(x = time, y = Value, color = Type)) +
+  geom_line() +
+  labs(title = "Charles de Gaulles passenger traffic forecast", x = "Time", y = "Value") +
+  theme_minimal()
+
+```
+#### Summary
+
+```{r}
+# Information on the model
+sarima_model_aic_charles2
+```
 
 
