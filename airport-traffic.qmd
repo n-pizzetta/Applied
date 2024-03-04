@@ -1139,7 +1139,7 @@ sarima_model_aic_charles
 We first plot the forecasted data and the actual data to see the difference.
 
 
-```{r}
+```{r} 
 
 # Forecast the next 32 periods
 forecasted_values_charles <- forecast(sarima_model_aic_charles, h=41)
@@ -1150,6 +1150,8 @@ actual_data_charles <- tibble(
   Value = as.vector(charles_ts),
   Type = 'Actual'
 )
+
+actual_data_charles <- actual_data_charles[actual_data_charles$time <= as.Date("2023-05-01"), ]
 
 # For forecasted data: Create a tibble/data frame with forecasted times and values
 forecast_data_charles <- tibble(
@@ -1174,7 +1176,7 @@ Then we plot the difference between the forecasted and actual values.
 ```{r}
 
 
-actual_data_subset_charles <- actual_data_charles[actual_data_charles$time >= as.Date("2020-01-01") & actual_data_charles$time <= as.Date("2023-05-01"), ]
+actual_data_subset_charles <- actual_data_charles[actual_data_charles$time >= as.Date("2020-01-01"),]
 
 # Calculate the difference between forecasted and actual values
 forecast_data_charles$diff <- forecast_data_charles$Value - actual_data_subset_charles$Value
@@ -1296,6 +1298,8 @@ Value = as.vector(madrid_ts),
 Type = 'Actual'
 )
 
+actual_data_madrid <- actual_data_madrid[actual_data_madrid$time <= as.Date("2023-05-01"), ]
+
 #For forecasted data: Create a tibble/data frame with forecasted times and values
 
 forecast_data_madrid <- tibble(
@@ -1324,7 +1328,7 @@ We take the same steps as for Paris CDG
 
 #Plot of the difference between prediction and actual data
 
-actual_data_subset_madrid <- actual_data_madrid[actual_data_madrid$time >= as.Date("2020-01-01") & actual_data_madrid$time <= as.Date("2023-05-01"), ]
+actual_data_subset_madrid <- actual_data_madrid[actual_data_madrid$time >= as.Date("2020-01-01"),]
 
 #Calculate the difference between forecasted and actual values
 
@@ -1445,6 +1449,8 @@ actual_data_roma <- tibble(
   Type = 'Actual'
 )
 
+actual_data_roma <- actual_data_roma[actual_data_roma$time <= as.Date("2023-05-01"), ]
+
 # For forecasted data: Create a tibble/data frame with forecasted times and values
 
 forecast_data_roma <- tibble(
@@ -1470,7 +1476,7 @@ ggplot(data = combined_data_roma, aes(x = time, y = Value, color = Type)) +
 
 # Plot of the difference between prediction and actual data
 
-actual_data_subset_roma <- actual_data_roma[actual_data_roma$time >= as.Date("2020-01-01") & actual_data_roma$time <= as.Date("2023-05-01"), ]
+actual_data_subset_roma <- actual_data_roma[actual_data_roma$time >= as.Date("2020-01-01"),]
 
 # Calculate the difference between forecasted and actual values
 
@@ -1593,6 +1599,8 @@ actual_data_kob <- tibble(
   Type = 'Actual'
 )
 
+actual_data_kob <- actual_data_kob[actual_data_kob$time <= as.Date("2023-05-01"), ]
+
 # For forecasted data: Create a tibble/data frame with forecasted times and values
 
 forecast_data_kob <- tibble(
@@ -1617,7 +1625,7 @@ ggplot(data = combined_data_kob, aes(x = time, y = Value, color = Type)) +
 
 # Plot of the difference between prediction and actual data
 
-actual_data_subset_kob <- actual_data_kob[actual_data_kob$time >= as.Date("2020-01-01") & actual_data_kob$time <= as.Date("2023-05-01"), ]
+actual_data_subset_kob <- actual_data_kob[actual_data_kob$time >= as.Date("2020-01-01"),]
 
 # Calculate the difference between forecasted and actual values
 
@@ -1629,7 +1637,6 @@ ggplot(data = forecast_data_kob, aes(x = time, y = diff, color = Type)) +
   geom_line() +
   labs(title = "Difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
   theme_minimal()
-
 
 ```
 
@@ -1742,6 +1749,8 @@ actual_data_oslo <- tibble(
   Type = 'Actual'
 )
 
+actual_data_oslo <- actual_data_oslo[actual_data_oslo$time <= as.Date("2023-05-01"), ]
+
 # For forecasted data: Create a tibble/data frame with forecasted times and values
 
 forecast_data_oslo <- tibble(
@@ -1767,7 +1776,7 @@ ggplot(data = combined_data_oslo, aes(x = time, y = Value, color = Type)) +
 
 # Plot of the difference between prediction and actual data
 
-actual_data_subset_oslo <- actual_data_oslo[actual_data_oslo$time >= as.Date("2020-01-01") & actual_data_oslo$time <= as.Date("2023-05-01"), ]
+actual_data_subset_oslo <- actual_data_oslo[actual_data_oslo$time >= as.Date("2020-01-01"),]
 
 # Calculate the difference between forecasted and actual values
 
