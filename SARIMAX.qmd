@@ -80,35 +80,55 @@ paris <- politics_formate %>% dplyr::filter(Airport == "ADOLFO SUAREZ MADRID-BAR
 roma <- politics_formate %>% dplyr::filter(Airport == "ROMA/FIUMICINO airport")
 ```
 
-
-
-
-
-
-
+## SARIMAX
 
 
 #### Integrating the politics to our SARIMA model for CDG
 
 ```{r}
 # Dataframe for Paris policies
-col_start_paris <- which(names(paris)=="Borders main EU period")
-col_end_paris <- which(names(paris)=="Negative tests period")
-paris_pol <- paris %>% select(which(names(paris)=="Date"), col_start_paris : col_end_paris)
-paris_pol$`Borders main EU period` <- as.numeric(as.character(paris_pol$`Borders main EU period`))
-paris_pol$`Borders non-EU period` <- as.numeric(as.character(paris_pol$`Borders non-EU period`))
-paris_pol$`Negative tests period` <- as.numeric(as.character(paris_pol$`Negative tests period`))
-paris_pol <- paris_pol[paris_pol$Date <= as.Date("2022-12-01"),]
-paris_pol <- paris_pol %>% dplyr::select(-"Date")
+paris_20 <- paris[paris$Date<=as.Date("2019-12-01"),]
+paris_covid <- paris_20$CovidDummy
+sarimax_paris <- auto.arima(charles_ts20, xreg=paris_covid, seasonal=TRUE, stepwise = FALSE, approximation = FALSE)
+#sarimax_paris2 <- Arima(charles_ts19, order=c(1,1,1), seasonal=list(order=c(0,1,1)))
 
-# Dataframe for paris traffic
-paris_pass <- paris[1:3]
 
-# Time series object format
-paris_ts <- paris_pass %>% dplyr::select(3) %>% ts(frequency = 12, start = c(2002, 1), end = c(2022, 12))
+library(forecast)
+sarimax_model <- Arima(paris_ts, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12), xreg=as.matrix(paris_pol))
+```
+
+
+#### Prediction
+
+```{r}
+# Forecast the next 31 periods
+forecasted_values <- forecast::forecast(sarimax_paris, h=31, xreg=paris_covid)
+
+# For actual data: Create a tibble/data frame with time and actual values
+actual_data <- tibble(
+  time = as.Date(time(charles_ts)),
+  Value = as.vector(charles_ts),
+  Type = 'Actual'
+)
+
+# For forecasted data: Create a tibble/data frame with forecasted times and values
+forecast_data <- tibble(
+  time = as.Date(time(forecasted_values$mean)),
+  Value = as.vector(forecasted_values$mean),
+  Type = 'Forecast'
+)
+
+# Combine actual and forecasted data
+combined_data <- bind_rows(actual_data, forecast_data)
+
+# Plot using ggplot2
+ggplot(data = combined_data, aes(x = time, y = Value, color = Type)) +
+  geom_line() +
+  labs(title = "Charles de Gaulles passenger traffic forecast", x = "Time", y = "Value") +
+  theme_minimal()
+
 ```
 
 ```{r}
-library(forecast)
-sarimax_model <- Arima(paris_ts, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12), xreg=as.matrix(paris_pol))
+autoplot(forecasted_values) + autolayer(charles_ts)
 ```
