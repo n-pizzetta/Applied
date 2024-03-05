@@ -572,7 +572,7 @@ plot(forecasts)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model
 ```
 
@@ -585,95 +585,75 @@ sarima_model
 #### AIC
 
 The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following :
-
-```{r}
-# AIC
-PQmax = 2
-Imax = 1
-
-min_AIC <- Inf
-min_AIC_params <- NULL
-
-results_AIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      AIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(charles_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_AIC <- rbind(results_AIC, c(ar, i, ma, AR, I, MA, AIC(fit)))
-            
-            # Check if the current AIC is the minimum
-            if (AIC(fit) < min_AIC) {
-              min_AIC <- AIC(fit)
-              min_AIC_params <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_AIC_params
-```
+The parameters obtained are the following :`r min_AIC_params_charles`
 
 #### BIC
 
 The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following :
-
-```{r}
-# BIC
-PQmax = 2
-Imax = 1
-
-min_BIC <- Inf
-min_BIC_params <- NULL
-
-results_BIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      BIC = numeric())
+The parameters obtained are the following : `r min_BIC_params_charles`
 
 
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(charles_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_BIC <- rbind(results_BIC, c(ar, i, ma, AR, I, MA, BIC(fit)))
-            
-            # Check if the current AIC is the minimum
-            if (BIC(fit) < min_BIC) {
-              min_BIC <- BIC(fit)
-              min_BIC_params <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_BIC_params
-```
 
 :::
 
+
+## MADRID
+
+::: panel-tabset
+#### AIC
+
+The parameters obtained are the following :`r min_AIC_params_madrid`
+
+#### BIC
+
+The parameters obtained are the following :`r min_BIC_params_madrid`
+
+:::
+
+## ROMA
+
+::: panel-tabset
+#### AIC
+
+The parameters obtained are the following :`r min_AIC_params_roma`
+
+#### BIC
+
+The parameters obtained are the following :`r min_BIC_params_roma`
+
+:::
+
+## KOBENHAVN
+
+::: panel-tabset
+#### AIC
+
+The parameters obtained are the following :`r min_AIC_params_kob`
+
+#### BIC
+
+The parameters obtained are the following :`r min_BIC_params_kob`
+
+:::
+
+## OSLO
+
+::: panel-tabset
+#### AIC
+
+The parameters obtained are the following :`r min_AIC_params_oslo`
+
+#### BIC
+
+The parameters obtained are the following :`r min_BIC_params_oslo`
+
+:::
+
+# SARIMA
+
+## Model for PARIS
+
+>>>>>>> Stashed changes
 #### Parameters with AIC
 
 :::{.panel-tabset}
@@ -702,7 +682,7 @@ plot(forecasts2)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model2
 ```
 
@@ -738,7 +718,7 @@ plot(forecasts3)
 #### Summary
 
 ```{r}
-# Informartion on the model
+# Information on the model
 sarima_model3
 ```
 
