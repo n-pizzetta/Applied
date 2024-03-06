@@ -654,7 +654,7 @@ sarima_model
 The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
 The parameters obtained are the following :
 
-```{r}
+```{r, eval = FALSE}
 # AIC
 PQmax = 2
 Imax = 1
@@ -699,7 +699,7 @@ min_AIC_params_charles
 The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
 The parameters obtained are the following :
 
-```{r}
+```{r, eval = FALSE}
 # BIC
 PQmax = 2
 Imax = 1
@@ -745,7 +745,7 @@ min_BIC_params_charles
 ::: panel-tabset
 #### AIC
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval = FALSE}
 # AIC
 PQmax = 2
 Imax = 1
@@ -787,7 +787,7 @@ min_AIC_params_madrid
 
 #### BIC
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval = FALSE}
 # BIC
 PQmax = 2
 Imax = 1
@@ -833,7 +833,7 @@ min_BIC_params_madrid
 ::: panel-tabset
 #### AIC
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval = FALSE}
 # AIC
 PQmax = 2
 Imax = 1
@@ -875,7 +875,7 @@ min_AIC_params_roma
 
 #### BIC
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval = FALSE}
 # BIC
 PQmax = 2
 Imax = 1
@@ -922,7 +922,7 @@ min_BIC_params_roma
 ::: panel-tabset
 #### AIC
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval = FALSE}
 # AIC
 PQmax = 2
 Imax = 1
@@ -964,7 +964,7 @@ min_AIC_params_kob
 
 #### BIC
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval = FALSE}
 # BIC
 PQmax = 2
 Imax = 1
@@ -1010,7 +1010,7 @@ min_BIC_params_kob
 ::: panel-tabset
 #### AIC
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval = FALSE}
 # AIC
 PQmax = 2
 Imax = 1
@@ -1052,7 +1052,7 @@ min_AIC_params_oslo
 
 #### BIC
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval = FALSE}
 # BIC
 PQmax = 2
 Imax = 1
@@ -1103,7 +1103,7 @@ min_BIC_params_oslo
 ::: panel-tabset
 #### Model
 
-```{r}
+```{r, eval=FALSE}
 print(min_AIC_params_charles)
 ```
 
@@ -1212,7 +1212,7 @@ ggplot(data = forecast_data_charles, aes(x = time, y = scalediff, color = Type))
 ::: panel-tabset
 #### Model
 
-```{r}
+```{r, eval=FALSE}
 print(min_BIC_params_charles)
 ```
 
@@ -1252,7 +1252,7 @@ sarima_model_bic_charles
 ::: panel-tabset
 #### Model
 
-```{r}
+```{r, eval=FALSE}
 print(min_AIC_params_madrid)
 ```
 
@@ -1361,7 +1361,7 @@ theme_minimal()
 ::: panel-tabset
 #### Model
 
-```{r}
+```{r, eval=FALSE}
 print(min_BIC_params_madrid)
 ```
 
@@ -1401,7 +1401,7 @@ sarima_model_bic_madrid
 ::: panel-tabset
 #### Model
 
-```{r}
+```{r, eval=FALSE}
 print(min_AIC_params_roma)
 ```
 
@@ -1509,7 +1509,7 @@ ggplot(data = forecast_data_roma, aes(x = time, y = scalediff, color = Type)) +
 ::: panel-tabset
 #### Model
 
-```{r}
+```{r, eval=FALSE}
 print(min_BIC_params_roma)
 ```
 
@@ -1549,7 +1549,7 @@ sarima_model_bic_roma
 ::: panel-tabset
 #### Model
 
-```{r}
+```{r, eval=FALSE}
 print(min_AIC_params_kob)
 ```
 
@@ -1659,7 +1659,7 @@ ggplot(data = forecast_data_kob, aes(x = time, y = scalediff, color = Type)) +
 ::: panel-tabset
 #### Model
 
-```{r}
+```{r, eval=FALSE}
 print(min_BIC_params_kob)
 ```
 
@@ -1699,7 +1699,7 @@ sarima_model_bic_kob
 ::: panel-tabset
 #### Model
 
-```{r}
+```{r, eval=FALSE}
 print(min_AIC_params_oslo)
 ```
 
@@ -1810,7 +1810,7 @@ ggplot(data = forecast_data_oslo, aes(x = time, y = scalediff, color = Type)) +
 ::: panel-tabset
 #### Model
 
-```{r}
+```{r, eval=FALSE}
 print(min_BIC_params_oslo)
 ```
 
@@ -1846,6 +1846,8 @@ sarima_model_bic_oslo
 # Comparing the difference
 
 The scale differences are displayed on the same plot for comparison.
+
+ON A PRIS LES AIC A CHAQUE FOIS CAR LES P VALUE POUR LES TYESTS DE LSJUNG BOX ETAIENT PLUS ELEVEES (PAS D'AC ENTRE LES RESIDUS)
 
 ```{r}
 # Assuming you have the necessary forecast_data for each city (charles, madrid, roma, kob, oslo)
