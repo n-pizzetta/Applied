@@ -27,6 +27,13 @@ library(tseries)
 library(forecast)
 ```
 
+```{r}
+# Sourcing the file wich contains the functions to find the best parameters with regard to AIC and BIC
+source("hyperparameters-selection.R")
+# Loading the best hyperparameters for our model we previously found
+load("hyperparameters.RData")
+```
+
 ```{r, echo=FALSE,  warning=FALSE, message=FALSE}
 # Format of our dataframes
 styled_dt <- function(df, n=5) {
@@ -281,33 +288,33 @@ dygraphs::dygraph(traffic_mean, main = "Average Passengers per Month", xlab = "D
 ```
 :::
 
- 
 
 ## Focus
 
 Quick view of the 3 airports with most traffic in our dataset.
 
 ::: panel-tabset
-### CDG
 
-#### Paris Charles de Gaulle Airport
+### PARIS
+
+#### PARIS-CHARLES DE GAULLE airport
 
 ```{r}
-charles <- traffic_checked %>% dplyr::filter(Airport == "PARIS-CHARLES DE GAULLE airport")
+paris <- traffic_checked %>% dplyr::filter(Airport == "PARIS-CHARLES DE GAULLE airport")
 ```
 
 Formating the dataset as a time serie variable
 
 ```{r}
 # Time serie function
-charles_ts <- charles %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2023, 7))
+paris_ts <- paris %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2023, 7))
 ```
 
 ```{r, echo=FALSE}
-dygraphs::dygraph(data=charles_ts, main="Passengers per month at Paris Charles de Gaulle")
+dygraphs::dygraph(data=paris_ts, main="Passengers per month at Paris Charles de Gaulle")
 ```
 
-### MAD
+### MADRID
 
 #### ADOLFO SUAREZ MADRID-BARAJAS airport
 
@@ -326,7 +333,7 @@ madrid_ts <- madrid %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 
 dygraphs::dygraph(data=madrid_ts, main="Passengers per month at Madrid")
 ```
 
-### ROM
+### ROMA
 
 #### ROMA/FIUMICINO airport
 
@@ -345,28 +352,28 @@ roma_ts <- roma %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1))
 dygraphs::dygraph(data=roma_ts, main="Passengers per month at Roma")
 ```
 
-### KOB
+### COPENHAGEN
 
-#### Kobenhavn airport
+#### KOBENHAVN/KASTRUP airport
 
 ```{r}
-kobenhavn <- traffic_checked %>% dplyr::filter(Airport == "KOBENHAVN/KASTRUP airport")
+copenhagen <- traffic_checked %>% dplyr::filter(Airport == "KOBENHAVN/KASTRUP airport")
 ```
 
 Formating the dataset as a time serie variable
 
 ```{r}
 # Time serie function
-kobenhavn_ts <- kobenhavn %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1))
+copenhagen_ts <- copenhagen %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1))
 ```
 
 ```{r, echo=FALSE}
-dygraphs::dygraph(data=kobenhavn_ts, main="Passengers per month at Kobenhavn")
+dygraphs::dygraph(data=copenhagen_ts, main="Passengers per month at Copenhagen")
 ```
 
-### OSL
+### OSLO
 
-#### Oslo Gardermoen airport
+#### OSLO/GARDERMOEN airport
 
 ```{r}
 oslo <- traffic_checked %>% dplyr::filter(Airport == "OSLO/GARDERMOEN airport")
@@ -391,18 +398,17 @@ First of all, we want to keep the data only until the end of 2019, period before
 
 ```{r}
 # Paris
-charles_ts19 <- charles %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
-charles_ts19 <- na.omit(charles_ts19)
-charles_ts20 <- charles %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2020, 09))
+paris_ts19 <- paris %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
+paris_ts19 <- na.omit(paris_ts19)
 # Madrid
 madrid_ts19 <- madrid %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
 madrid_ts19 <- na.omit(madrid_ts19)
 # Roma
 roma_ts19 <- roma %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
 roma_ts19 <- na.omit(roma_ts19)
-# Kobenhaven
-kobenhavn_ts19 <- kobenhavn %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
-kobenhavn_ts19 <- na.omit(kobenhavn_ts19)
+# Copenhagen
+copenhagen_ts19 <- copenhagen %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
+copenhagen_ts19 <- na.omit(copenhagen_ts19)
 # Oslo
 oslo_ts19 <- oslo %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2019, 12))
 oslo_ts19 <- na.omit(oslo_ts19)
@@ -417,18 +423,18 @@ This violates the assumption of same mean at all time in the stationarity proper
 Also, distinct seasonal patterns are present which is also a violation of the previous requirement.
 We thus already think that our time series are not stationary.
 
- 
+
 
 The positive trend seems to be linear which suggests that a first difference could be sufficient to detrend it.
 In the case of curve we would have preferred to previously transform our data and then make a first difference.
 But before doing a first difference we have to take the seasonality into account.
 If after the seasonal differencing the trend remains, then we will apply a forst difference.
 
- 
+
 
 We will verify it as it follows.
 
- 
+
 
 First, we study the non-seasonal behavior.
 It is likely that the short run non-seasonal components will contribute to the model.
@@ -440,10 +446,10 @@ We start with anakysing our time serieswithout previous differencing.
 
 ```{r}
 # Trend
-ts_decomposed <- decompose(charles_ts19)
+ts_decomposed <- decompose(paris_ts19)
 
 # Plot
-plot(charles_ts19, col = 'blue', xlab = "Year", ylab = "Passengers",
+plot(paris_ts19, col = 'blue', xlab = "Year", ylab = "Passengers",
      main = "CDG passengers before seasonal differencing")
 
 lines(ts_decomposed$trend,  col = 'red')
@@ -466,7 +472,7 @@ $H_0 : Unit root$ $H_1 : Stationary$
 
 ```{r}
 
-adf_test <- adf.test(charles_ts19, alternative = "stationary")
+adf_test <- adf.test(paris_ts19, alternative = "stationary")
 
 # Results of the ADF test
 print(adf_test)
@@ -475,7 +481,7 @@ print(adf_test)
 Our result with a $p-value = 0.01 < 0.05$ let us suppose that there is stationarity.
 We success to reject the null hypothesis that states a unit root (non-stationarity) in the time serie.
 
-This let us suppose that we could need to differenciate `charles_ts19`.
+This let us suppose that we could need to differenciate `paris_ts19`.
 
 #### ACF
 
@@ -490,7 +496,7 @@ We will interpret it as the following :
 
 ```{r, echo=FALSE}
 # Plot of the Autocorrelation Function (ACF)
-forecast::ggAcf(charles_ts19) +
+forecast::ggAcf(paris_ts19) +
   ggplot2::ggtitle("Sample ACF for CDG airport")
 ```
 
@@ -513,7 +519,7 @@ We will interpret it as the following :
 
 ```{r, echo=FALSE}
 # Plot of the Partial Autocorrelation Function (PACF)
-forecast::ggPacf(charles_ts19) +
+forecast::ggPacf(paris_ts19) +
   ggplot2::ggtitle("Sample PACF for CDG airport")
 ```
 
@@ -527,13 +533,13 @@ We will take the seasonality into account, which means that we make a difference
 
 ```{r}
 # Difference
-charles_ts19_diff <- diff(charles_ts19, lag = 12)
+paris_ts19_diff <- diff(paris_ts19, lag = 12)
 
 # Trend
-ts_stl <- stl(charles_ts19_diff, s.window = "periodic")
+ts_stl <- stl(paris_ts19_diff, s.window = "periodic")
 
 # Plot
-plot(charles_ts19_diff, col = 'blue', xlab = "Year", ylab = "Passengers",
+plot(paris_ts19_diff, col = 'blue', xlab = "Year", ylab = "Passengers",
      main = "CDG passengers after seasonal differencing")
 
 lines(ts_stl$time.series[, "trend"], col = 'red')
@@ -552,7 +558,7 @@ To validate our proposal, we run the ADF test with the ACF and PACF graphs and l
 $H_0 : Unit root$ $H_1 : Stationary$
 
 ```{r}
-adf_test2 <- adf.test(charles_ts19_diff, alternative = "stationary")
+adf_test2 <- adf.test(paris_ts19_diff, alternative = "stationary")
 
 # Results of the ADF test
 print(adf_test2)
@@ -565,7 +571,7 @@ Which means that we still have stationarity in our time series.
 
 ```{r, echo=FALSE}
 # Plot of the Autocorrelation Function (ACF)
-forecast::ggAcf(charles_ts19_diff) +
+forecast::ggAcf(paris_ts19_diff) +
   ggplot2::ggtitle("Sample ACF for CDG airport after differencing")
 ```
 
@@ -573,7 +579,7 @@ forecast::ggAcf(charles_ts19_diff) +
 
 ```{r, echo=FALSE}
 # Plot of the Partial Autocorrelation Function (PACF)
-forecast::ggPacf(charles_ts19_diff) +
+forecast::ggPacf(paris_ts19_diff) +
   ggplot2::ggtitle("Sample PACF for CDG airport after differencing")
 ```
 :::
@@ -584,7 +590,7 @@ forecast::ggPacf(charles_ts19_diff) +
 
 ### Automated parameters choice
 
-::: panel-tabset
+
 #### Model
 
 R has an automated function that can help us to build our model.
@@ -592,29 +598,202 @@ We thus run it to get the suggested coefficients with : `auto.arima`.
 
 ```{r}
 # Get suggestion
-forecast::auto.arima(charles_ts19)
+paris_ts19_auto_params <- forecast::auto.arima(paris_ts19)
 ```
 
-Based on the results we create the following model.
+Which gives us the following parameters : `r paris_ts19_auto_params`
+
+
+### Manual parameters choice
+
+::: panel-tabset
+#### AIC
+
+```{r, eval=FALSE}
+# AIC parameters
+paris_ts19_aic_params <- find_aic_params(paris_ts19)
+# do not forget to save this new variable when you run this command
+```
+
+
+The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following : `r paris_ts19_aic_params` *(p,d,q)x(P,D,Q)[12]*
+
+
+#### BIC
+
+```{r, eval=FALSE}}
+# BIC parameters
+paris_ts19_bic_params <- find_bic_params(paris_ts19)
+# do not forget to save this new variable when you run this command
+```
+
+The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following : `r paris_ts19_bic_params` *(p,d,q)x(P,D,Q)[12]*
+
+:::
+
+## MADRID
+
+::: panel-tabset
+#### AIC
+
+```{r, eval=FALSE}
+# AIC parameters
+madrid_ts19_aic_params <- find_aic_params(madrid_ts19)
+# do not forget to save this new variable when you run this command
+```
+
+
+The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following : `r madrid_ts19_aic_params` *(p,d,q)x(P,D,Q)[12]*
+
+
+#### BIC
+
+```{r, eval=FALSE}}
+# BIC parameters
+madrid_ts19_bic_params <- find_bic_params(madrid_ts19)
+# do not forget to save this new variable when you run this command
+```
+
+The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following : `r madrid_ts19_bic_params` *(p,d,q)x(P,D,Q)[12]*
+
+:::
+
+## ROMA
+
+::: panel-tabset
+#### AIC
+
+```{r, eval=FALSE}
+# AIC parameters
+roma_ts19_aic_params <- find_aic_params(roma_ts19)
+# do not forget to save this new variable when you run this command
+```
+
+
+The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following : `r roma_ts19_aic_params` *(p,d,q)x(P,D,Q)[12]*
+
+
+#### BIC
+
+```{r, eval=FALSE}}
+# BIC parameters
+roma_ts19_bic_params <- find_bic_params(roma_ts19)
+# do not forget to save this new variable when you run this command
+```
+
+The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following : `r roma_ts19_bic_params` *(p,d,q)x(P,D,Q)[12]*
+
+:::
+
+## COPENHAGEN
+
+::: panel-tabset
+#### AIC
+
+```{r, eval=FALSE}
+# AIC parameters
+copenhagen_ts19_aic_params <- find_aic_params(copenhagen_ts19)
+# do not forget to save this new variable when you run this command
+```
+
+
+The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following : `r copenhagen_ts19_aic_params` *(p,d,q)x(P,D,Q)[12]*
+
+
+#### BIC
+
+```{r, eval=FALSE}
+# BIC parameters
+copenhagen_ts19_bic_params <- find_bic_params(copenhagen_ts19)
+# do not forget to save this new variable when you run this command
+```
+
+The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following : `r copenhagen_ts19_bic_params` *(p,d,q)x(P,D,Q)[12]*
+
+:::
+
+## OSLO
+
+::: panel-tabset
+#### AIC
+
+```{r, eval=FALSE}
+# AIC parameters
+oslo_ts19_aic_params <- find_aic_params(oslo_ts19)
+# do not forget to save this new variable when you run this command
+```
+
+
+The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following : `r oslo_ts19_aic_params` *(p,d,q)x(P,D,Q)[12]*
+
+
+#### BIC
+
+```{r, eval=FALSE}
+# BIC parameters
+oslo_ts19_bic_params <- find_bic_params(oslo_ts19)
+# do not forget to save this new variable when you run this command
+```
+
+The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
+The parameters obtained are the following : `r oslo_ts19_bic_params` *(p,d,q)x(P,D,Q)[12]*
+
+:::
+
+
+```{r, eval=FALSE}
+# Here we save all our parameters
+save(paris_ts19_aic_params, paris_ts19_bic_params,
+     madrid_ts19_aic_params, madrid_ts19_bic_params,
+     roma_ts19_aic_params, roma_ts19_bic_params,
+     copenhagen_ts19_aic_params, copenhagen_ts19_bic_params,
+     oslo_ts19_aic_params, oslo_ts19_bic_params,
+     file = "hyperparameters.RData")
+```
+
+
+# SARIMA
+
+## Model for PARIS
+
+#### Parameters with AIC
+
+::: panel-tabset
+#### Model
+
+Parameters used : 'r paris_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
 
 ```{r}
-# SARIMA
-sarima_model <- Arima(charles_ts19, order=c(1,0,0), seasonal=list(order=c(0,1,1), period=12))
+# Setting the parameters
+non_seasonal_order <- paris_ts19_aic_params$min_AIC_params[1:3]
+seasonal_order <- paris_ts19_aic_params$min_AIC_params[4:6]
+# Fitting the model
+sarima_model_aic_paris <- Arima(paris_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
-
-Now that we have build our model, we check the residuals.
 
 #### Residuals
 
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model)
+sarima_model_aic_paris_residuals <- checkresiduals(sarima_model_aic_paris)
+p_value <- sarima_model_aic_paris_residuals$p.value
+checkresiduals(sarima_model_aic_paris)
 ```
 
--   **The Ljung-Box test**, we got $p-value = 1.416*10^{-08} < 0.05$, we reject the null hypothesis.
+-   **The Ljung-Box test**, if we get $p-value < 0.05$, we reject the null hypothesis.
     This suggests that the error has a significant autocorrelation at some of the lags used in the test (up to lag 24 here).
-    Our model may not capture adequately the time-dependency.
+    Then our model would not capture adequately the time-dependency.
+    here, we have $p-value = `r p_value`$.
 
 -   **The residuals time series plot**, helps us to check if our residuals look like white noise (meaning that our model has captured the underlying process correctly).
     Here, our residuals fluctuate around zero, we do not see obvious patterns which is a good sign.
@@ -633,538 +812,46 @@ checkresiduals(sarima_model)
 
 ```{r}
 # Prediction of the 12 next months
-forecasts <- forecast(sarima_model, h=12)
+forecasts_aic_paris <- forecast(sarima_model_aic_paris, h=41)
 #str(forecasts)
-plot(forecasts)
-```
-
-#### Summary
-
-```{r}
-# Informartion on the model
-sarima_model
-```
-:::
-
-### Manual parameters choice
-
-::: panel-tabset
-#### AIC
-
-The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following :
-
-```{r}
-# AIC
-PQmax = 2
-Imax = 1
-
-min_AIC <- Inf
-min_AIC_params_charles <- NULL
-
-results_AIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      AIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(charles_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_AIC <- rbind(results_AIC, c(ar, i, ma, AR, I, MA, AIC(fit)))
-            
-            # Check if the current AIC is the minimum
-            if (AIC(fit) < min_AIC) {
-              min_AIC <- AIC(fit)
-              min_AIC_params_charles <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_AIC_params_charles
-```
-
-#### BIC
-
-The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following :
-
-```{r}
-# BIC
-PQmax = 2
-Imax = 1
-
-min_BIC <- Inf
-min_BIC_params_charles <- NULL
-
-results_BIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      BIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(charles_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_BIC <- rbind(results_BIC, c(ar, i, ma, AR, I, MA, BIC(fit)))
-            
-            # Check if the current BIC is the minimum
-            if (BIC(fit) < min_BIC) {
-              min_BIC <- BIC(fit)
-              min_BIC_params_charles <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_BIC_params_charles
-```
-:::
-
-## MADRID
-
-::: panel-tabset
-#### AIC
-
-```{r, echo=FALSE}
-# AIC
-PQmax = 2
-Imax = 1
-
-min_AIC <- Inf
-min_AIC_params_madrid <- NULL
-
-results_AIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      AIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(madrid_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_AIC <- rbind(results_AIC, c(ar, i, ma, AR, I, MA, AIC(fit)))
-            
-            # Check if the current AIC is the minimum
-            if (AIC(fit) < min_AIC) {
-              min_AIC <- AIC(fit)
-              min_AIC_params_madrid <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_AIC_params_madrid
-```
-
-#### BIC
-
-```{r, echo=FALSE}
-# BIC
-PQmax = 2
-Imax = 1
-
-min_BIC <- Inf
-min_BIC_params_madrid <- NULL
-
-results_BIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      BIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(madrid_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_BIC <- rbind(results_BIC, c(ar, i, ma, AR, I, MA, BIC(fit)))
-            
-            # Check if the current BIC is the minimum
-            if (BIC(fit) < min_BIC) {
-              min_BIC <- BIC(fit)
-              min_BIC_params_madrid <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_BIC_params_madrid
-```
-:::
-
-## ROMA
-
-::: panel-tabset
-#### AIC
-
-```{r, echo=FALSE}
-# AIC
-PQmax = 2
-Imax = 1
-
-min_AIC <- Inf
-min_AIC_params_roma <- NULL
-
-results_AIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      AIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(roma_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_AIC <- rbind(results_AIC, c(ar, i, ma, AR, I, MA, AIC(fit)))
-            
-            # Check if the current AIC is the minimum
-            if (AIC(fit) < min_AIC) {
-              min_AIC <- AIC(fit)
-              min_AIC_params_roma <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_AIC_params_roma
-```
-
-#### BIC
-
-```{r, echo=FALSE}
-# BIC
-PQmax = 2
-Imax = 1
-
-min_BIC <- Inf
-min_BIC_params_roma <- NULL
-
-results_BIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      BIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(roma_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_BIC <- rbind(results_BIC, c(ar, i, ma, AR, I, MA, BIC(fit)))
-            
-            # Check if the current BIC is the minimum
-            if (BIC(fit) < min_BIC) {
-              min_BIC <- BIC(fit)
-              min_BIC_params_roma <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_BIC_params_roma
-
-```
-:::
-
-## KOBENHAVN
-
-::: panel-tabset
-#### AIC
-
-```{r, echo=FALSE}
-# AIC
-PQmax = 2
-Imax = 1
-
-min_AIC <- Inf
-min_AIC_params_kob <- NULL
-
-results_AIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      AIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(kobenhavn_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_AIC <- rbind(results_AIC, c(ar, i, ma, AR, I, MA, AIC(fit)))
-            
-            # Check if the current AIC is the minimum
-            if (AIC(fit) < min_AIC) {
-              min_AIC <- AIC(fit)
-              min_AIC_params_kob <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_AIC_params_kob
-```
-
-#### BIC
-
-```{r, echo=FALSE}
-# BIC
-PQmax = 2
-Imax = 1
-
-min_BIC <- Inf
-min_BIC_params_kob <- NULL
-
-results_BIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      BIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(kobenhavn_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_BIC <- rbind(results_BIC, c(ar, i, ma, AR, I, MA, BIC(fit)))
-            
-            # Check if the current BIC is the minimum
-            if (BIC(fit) < min_BIC) {
-              min_BIC <- BIC(fit)
-              min_BIC_params_kob <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_BIC_params_kob
-```
-:::
-
-## OSLO
-
-::: panel-tabset
-#### AIC
-
-```{r, echo=FALSE}
-# AIC
-PQmax = 2
-Imax = 1
-
-min_AIC <- Inf
-min_AIC_params_oslo <- NULL
-
-results_AIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      AIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(oslo_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_AIC <- rbind(results_AIC, c(ar, i, ma, AR, I, MA, AIC(fit)))
-            
-            # Check if the current AIC is the minimum
-            if (AIC(fit) < min_AIC) {
-              min_AIC <- AIC(fit)
-              min_AIC_params_oslo <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_AIC_params_oslo
-```
-
-#### BIC
-
-```{r, echo=FALSE}
-# BIC
-PQmax = 2
-Imax = 1
-
-min_BIC <- Inf
-min_BIC_params_oslo <- NULL
-
-results_BIC <- data.frame(ar = numeric(),
-                      ma = numeric(),
-                      AR = numeric(),
-                      MA = numeric(),
-                      i = numeric(),
-                      I = numeric(),
-                      BIC = numeric())
-
-
-for (ar in 0:PQmax) {
-  for (ma in 0:PQmax) {
-    for (AR in 0:PQmax) {
-      for (MA in 0:PQmax) {
-        for (i in 0:Imax) {
-          for (I in 0:Imax) {
-            fit <- Arima(oslo_ts19, order=c(ar,i,ma), seasonal=list(order=c(0,I,MA), period=12))
-            results_BIC <- rbind(results_BIC, c(ar, i, ma, AR, I, MA, BIC(fit)))
-            
-            # Check if the current BIC is the minimum
-            if (BIC(fit) < min_BIC) {
-              min_BIC <- BIC(fit)
-              min_BIC_params_oslo <- c(ar, i, ma, AR, I, MA)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-min_BIC_params_oslo
-
-```
-:::
-
-# SARIMA
-
-## Model for PARIS
-
-#### Parameters with AIC
-
-::: panel-tabset
-#### Model
-
-```{r}
-print(min_AIC_params_charles)
-```
-
-```{r}
-sarima_model_aic_charles <- Arima(charles_ts19, order=c(2,1,1), seasonal=list(order=c(0,1,1), period=12))
-```
-
-#### Residuals
-
-Interpretation of the residuals :
-
-```{r}
-checkresiduals(sarima_model_aic_charles)
-```
-
-#### Prediction
-
-```{r}
-# Prediction of the 12 next months
-forecasts_aic_charles <- forecast(sarima_model_aic_charles, h=41)
-#str(forecasts)
-plot(forecasts_aic_charles)
+plot(forecasts_aic_paris)
 ```
 
 #### Summary
 
 ```{r}
 # Information on the model
-sarima_model_aic_charles
+sarima_model_aic_paris
 ```
 #### Difference
 
 We first plot the forecasted data and the actual data to see the difference.
 
-
-```{r} 
-
+```{r, echo=FALSE} 
 # Forecast the next 32 periods
-forecasted_values_charles <- forecast(sarima_model_aic_charles, h=41)
+forecasted_values_paris <- forecast(sarima_model_aic_paris, h=41)
 
 # For actual data: Create a tibble/data frame with time and actual values
-actual_data_charles <- tibble(
-  time = as.Date(time(charles_ts)),
-  Value = as.vector(charles_ts),
+actual_data_paris <- tibble(
+  time = as.Date(time(paris_ts)),
+  Value = as.vector(paris_ts),
   Type = 'Actual'
 )
 
-actual_data_charles <- actual_data_charles[actual_data_charles$time <= as.Date("2023-05-01"), ]
+actual_data_paris <- actual_data_paris[actual_data_paris$time <= as.Date("2023-05-01"), ]
 
 # For forecasted data: Create a tibble/data frame with forecasted times and values
-forecast_data_charles <- tibble(
-  time = as.Date(time(forecasted_values_charles$mean)),
-  Value = as.vector(forecasted_values_charles$mean),
-  Type = 'Forecast'
+forecast_data_paris <- tibble(
+  time = as.Date(time(forecasted_values_paris$mean)),
+  Value = as.vector(forecasted_values_paris$mean),
+  Type = 'Forecast SARIMA'
 )
 
 # Combine actual and forecasted data
-combined_data_charles <- bind_rows(actual_data_charles, forecast_data_charles)
+combined_data_paris <- bind_rows(actual_data_paris, forecast_data_paris)
 
 # Plot using ggplot2
-ggplot(data = combined_data_charles, aes(x = time, y = Value, color = Type)) +
+ggplot(data = combined_data_paris, aes(x = time, y = Value, color = Type)) +
   geom_line() +
   labs(title = "Charles de Gaulles passenger traffic forecast", x = "Time", y = "Value") +
   theme_minimal()
@@ -1173,32 +860,29 @@ ggplot(data = combined_data_charles, aes(x = time, y = Value, color = Type)) +
 
 Then we plot the difference between the forecasted and actual values.
 
-```{r}
-
-
-actual_data_subset_charles <- actual_data_charles[actual_data_charles$time >= as.Date("2020-01-01"),]
+```{r, echo=FALSE}
+# Our actual data on the orecast period
+actual_data_subset_paris <- actual_data_paris[actual_data_paris$time >= as.Date("2020-01-01"),]
 
 # Calculate the difference between forecasted and actual values
-forecast_data_charles$diff <- forecast_data_charles$Value - actual_data_subset_charles$Value
+forecast_data_paris$diff <- forecast_data_paris$Value - actual_data_subset_paris$Value
 
 # Plot the difference using ggplot2
-ggplot(data = forecast_data_charles, aes(x = time, y = diff, color = Type)) +
+ggplot(data = forecast_data_paris, aes(x = time, y = diff, color = Type)) +
   geom_line() +
   labs(title = "Difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
   theme_minimal()
-
-
 ```
 
 The we divide this difference by the forecasted value to see the scaled difference.
 
 
-```{r}
+```{r, echo=FALSE}
+# Scaling the difference
+forecast_data_paris$scalediff <- forecast_data_paris$diff / forecast_data_paris$Value
 
-forecast_data_charles$scalediff <- forecast_data_charles$diff / forecast_data_charles$Value
-
-
-ggplot(data = forecast_data_charles, aes(x = time, y = scalediff, color = Type)) +
+# Plot the scaled difference using ggplot2
+ggplot(data = forecast_data_paris, aes(x = time, y = scalediff, color = Type)) +
   geom_line() +
   labs(title = "Scaled difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
   theme_minimal()
@@ -1213,11 +897,11 @@ ggplot(data = forecast_data_charles, aes(x = time, y = scalediff, color = Type))
 #### Model
 
 ```{r}
-print(min_BIC_params_charles)
+print(min_BIC_params_paris)
 ```
 
 ```{r}
-sarima_model_bic_charles <- Arima(charles_ts19, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
+sarima_model_bic_paris <- Arima(paris_ts19, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
 ```
 
 #### Residuals
@@ -1225,23 +909,23 @@ sarima_model_bic_charles <- Arima(charles_ts19, order=c(0,1,1), seasonal=list(or
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_bic_charles)
+checkresiduals(sarima_model_bic_paris)
 ```
 
 #### Prediction
 
 ```{r}
 # Prediction of the 12 next months
-forecasts_bic_charles <- forecast(sarima_model_bic_charles, h=41)
+forecasts_bic_paris <- forecast(sarima_model_bic_paris, h=41)
 #str(forecasts)
-plot(forecasts_bic_charles)
+plot(forecasts_bic_paris)
 ```
 
 #### Summary
 
 ```{r}
 # Information on the model
-sarima_model_bic_charles
+sarima_model_bic_paris
 ```
 :::
 
@@ -1305,7 +989,7 @@ actual_data_madrid <- actual_data_madrid[actual_data_madrid$time <= as.Date("202
 forecast_data_madrid <- tibble(
 time = as.Date(time(forecasted_values_madrid$mean)),
 Value = as.vector(forecasted_values_madrid$mean),
-Type = 'Forecast'
+Type = 'Forecast SARIMA'
 )
 
 #Combine actual and forecasted data
@@ -1456,7 +1140,7 @@ actual_data_roma <- actual_data_roma[actual_data_roma$time <= as.Date("2023-05-0
 forecast_data_roma <- tibble(
   time = as.Date(time(forecasted_values_roma$mean)),
   Value = as.vector(forecasted_values_roma$mean),
-  Type = 'Forecast'
+  Type = 'Forecast SARIMA'
 )
 
 # Combine actual and forecasted data
@@ -1542,7 +1226,7 @@ sarima_model_bic_roma
 ```
 :::
 
-## Model for KOBENHAVN
+## Model for COPENHAGEN
 
 #### Parameters with AIC
 
@@ -1554,7 +1238,7 @@ print(min_AIC_params_kob)
 ```
 
 ```{r}
-sarima_model_aic_kob <- Arima(kobenhavn_ts19, order=c(1,1,0), seasonal=list(order=c(0,1,2), period=12))
+sarima_model_aic_kob <- Arima(copenhagen_ts19, order=c(1,1,0), seasonal=list(order=c(0,1,2), period=12))
 ```
 
 #### Residuals
@@ -1594,8 +1278,8 @@ forecasted_values_kob <- forecast(sarima_model_aic_kob, h=41)
 # For actual data: Create a tibble/data frame with time and actual values
 
 actual_data_kob <- tibble(
-  time = as.Date(time(kobenhavn_ts)),
-  Value = as.vector(kobenhavn_ts),
+  time = as.Date(time(copenhagen_ts)),
+  Value = as.vector(copenhagen_ts),
   Type = 'Actual'
 )
 
@@ -1606,7 +1290,7 @@ actual_data_kob <- actual_data_kob[actual_data_kob$time <= as.Date("2023-05-01")
 forecast_data_kob <- tibble(
   time = as.Date(time(forecasted_values_kob$mean)),
   Value = as.vector(forecasted_values_kob$mean),
-  Type = 'Forecast'
+  Type = 'Forecast SARIMA'
 )
 
 # Combine actual and forecasted data
@@ -1664,7 +1348,7 @@ print(min_BIC_params_kob)
 ```
 
 ```{r}
-sarima_model_bic_kob <- Arima(kobenhavn_ts19, order=c(0,1,0), seasonal=list(order=c(0,1,1), period=12))
+sarima_model_bic_kob <- Arima(copenhagen_ts19, order=c(0,1,0), seasonal=list(order=c(0,1,1), period=12))
 ```
 
 #### Residuals
@@ -1756,7 +1440,7 @@ actual_data_oslo <- actual_data_oslo[actual_data_oslo$time <= as.Date("2023-05-0
 forecast_data_oslo <- tibble(
   time = as.Date(time(forecasted_values_oslo$mean)),
   Value = as.vector(forecasted_values_oslo$mean),
-  Type = 'Forecast'
+  Type = 'Forecast SARIMA'
 )
 
 # Combine actual and forecasted data
@@ -1808,6 +1492,7 @@ ggplot(data = forecast_data_oslo, aes(x = time, y = scalediff, color = Type)) +
 #### Parameters with BIC
 
 ::: panel-tabset
+
 #### Model
 
 ```{r}
@@ -1848,12 +1533,9 @@ sarima_model_bic_oslo
 The scale differences are displayed on the same plot for comparison.
 
 ```{r}
-# Assuming you have the necessary forecast_data for each city (charles, madrid, roma, kob, oslo)
-# Replace these with the actual data and models you have
-
 # Combine all forecast data
 combined_data_all <- bind_rows(
-  mutate(forecast_data_charles, City = "Paris"),
+  mutate(forecast_data_paris, City = "Paris"),
   mutate(forecast_data_madrid, City = "Madrid"),
   mutate(forecast_data_roma, City = "Roma"),
   mutate(forecast_data_kob, City = "Kob"),
@@ -1985,11 +1667,11 @@ styled_dt(roma)
 #external_regressors <- as.matrix(paris[, c('Borders main EU period', 'Borders non-EU period', 'Negative tests period')])
 
 # Fit the SARIMAX model
-#auto.arima(charles_ts20, xreg = external_regressors, seasonal = TRUE)
+#auto.arima(paris_ts20, xreg = external_regressors, seasonal = TRUE)
 ```
 
 ```{r}
-sarima_model_aic_charles2 <- Arima(charles_ts20, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
+sarima_model_aic_paris2 <- Arima(paris_ts20, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
 ```
 
 #### Residuals
@@ -1997,19 +1679,19 @@ sarima_model_aic_charles2 <- Arima(charles_ts20, order=c(0,1,1), seasonal=list(o
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_aic_charles2)
+checkresiduals(sarima_model_aic_paris2)
 ```
 
 #### Prediction
 
 ```{r}
 # Forecast the next 32 periods
-forecasted_values <- forecast(sarima_model_aic_charles, h=32)
+forecasted_values <- forecast(sarima_model_aic_paris, h=32)
 
 # For actual data: Create a tibble/data frame with time and actual values
 actual_data <- tibble(
-  time = as.Date(time(charles_ts)),
-  Value = as.vector(charles_ts),
+  time = as.Date(time(paris_ts)),
+  Value = as.vector(paris_ts),
   Type = 'Actual'
 )
 
@@ -2035,7 +1717,7 @@ ggplot(data = combined_data, aes(x = time, y = Value, color = Type)) +
 
 ```{r}
 # Information on the model
-sarima_model_aic_charles2
+sarima_model_aic_paris2
 ```
 
 
