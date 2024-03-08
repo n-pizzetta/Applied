@@ -1,3 +1,6 @@
+
+#### FUNCTIONS TO SELECT THE BEST HYPERPARAMETERS FOR ARIMA MODELS ####
+
 # AIC #
 find_aic_params <- function(ts_object, PQmax = 2, Imax = 1, exogenous_var=NULL){
   
@@ -77,4 +80,40 @@ find_bic_params <- function(ts_object, PQmax = 2, Imax = 1, exogenous_var=NULL){
   }
   
   return(list(min_BIC_params=min_BIC_params, min_BIC=min_BIC, error_params=error_params))
+}
+
+### FUNCTION TO FORMAT THE OUTPUT OF OUR FUNCTIONS ###
+
+# Function that format the output of the AIC/BIC functions to visualize them properly in the HTML report
+format_arima_params <- function(params) {
+  if(length(params) != 6) {
+    stop("Vector must contain exactly 6 elements. Corresponding to the output 
+         of the functions find_aic_params or find_bic_params.")
+  }
+  
+  # Parameters extraction
+  p <- params[1]
+  d <- params[2]
+  q <- params[3]
+  P <- params[4]
+  D <- params[5]
+  Q <- params[6]
+  
+  # String formating
+  formatted_string <- sprintf("(%d,%d,%d)x(%d,%d,%d)[12]", p, d, q, P, D, Q)
+  
+  return(formatted_string)
+}
+
+# Function to reorder the output parameters of the auto.arima function to use them in the Arima function
+reorder_params <- function(params) {
+  if(length(params) != 7) {
+    stop("The entring vector must contain 7 elements. Corresponding to the parameters of a SARIMA or SARIMAX model fitted
+         with the function auto.arima.")
+  }
+  
+  # Réorganiser le vecteur selon l'ordre souhaité: (p, d, q, P, D, Q, S)
+  new_order <- c(params[1], params[6], params[2], params[3], params[7], params[4], params[5])
+  
+  return(new_order)
 }

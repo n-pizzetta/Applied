@@ -17,6 +17,7 @@ editor:
 ---
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# All libraries we used
 library(dplyr)
 library(zoo)
 library(xts)
@@ -135,10 +136,7 @@ We check if some of the airports are not associated with a country in our datase
 ```{r}
 # Checking
 airports_without_country <- traffic_mg[is.na(traffic_mg$Country), ]
-```
-
-```{r, echo=FALSE}
-styled_dt(airports_without_country, 5)
+as.vector(airports_without_country$Airport)
 ```
 
  
@@ -213,6 +211,7 @@ Here is our dataset that we will use from now on to build our model and make our
 airports_final_list <- unique(airports_best_ranked$Airport)
 
 traffic_checked <- traffic_pivot %>% filter(Airport %in% airports_final_list)
+traffic_checked <- traffic_checked[traffic_checked$Date <= as.Date("2023-05-01"),]
 ```
 
 ```{r, echo=FALSE}
@@ -307,7 +306,7 @@ Formating the dataset as a time serie variable
 
 ```{r}
 # Time serie function
-paris_ts <- paris %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2023, 7))
+paris_ts <- paris %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2023, 5))
 ```
 
 ```{r, echo=FALSE}
@@ -326,7 +325,7 @@ Formating the dataset as a time serie variable
 
 ```{r}
 # Time serie function
-madrid_ts <- madrid %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1))
+madrid_ts <- madrid %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2023, 5))
 ```
 
 ```{r, echo=FALSE}
@@ -345,7 +344,7 @@ Formating the dataset as a time serie variable
 
 ```{r}
 # Time serie function
-roma_ts <- roma %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1))
+roma_ts <- roma %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2023, 5))
 ```
 
 ```{r, echo=FALSE}
@@ -364,7 +363,7 @@ Formating the dataset as a time serie variable
 
 ```{r}
 # Time serie function
-copenhagen_ts <- copenhagen %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1))
+copenhagen_ts <- copenhagen %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2023, 5))
 ```
 
 ```{r, echo=FALSE}
@@ -384,7 +383,7 @@ Formating the dataset as a time serie variable
 ```{r}
 
 # Time serie function
-oslo_ts <- oslo %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1))
+oslo_ts <- oslo %>% dplyr::select(4) %>% ts(frequency = 12, start = c(2002, 1), end = c(2023, 5))
 ```
 
 ```{r, echo=FALSE}
@@ -591,8 +590,6 @@ forecast::ggPacf(paris_ts19_diff) +
 ### Automated parameters choice
 
 
-#### Model
-
 R has an automated function that can help us to build our model.
 We thus run it to get the suggested coefficients with : `auto.arima`.
 
@@ -601,7 +598,10 @@ We thus run it to get the suggested coefficients with : `auto.arima`.
 paris_ts19_auto_params <- forecast::auto.arima(paris_ts19)
 ```
 
-Which gives us the following parameters : `r paris_ts19_auto_params`
+Which gives us the following parameters : `r paris_ts19_auto_params$arma` *(p,q,P,[12],d,D)*.
+
+
+But we are not gonna use it to build our SARIMA model for each airport. We will prefer the AIC and BIC criteria to choose the best parameters.
 
 
 ### Manual parameters choice
@@ -616,20 +616,23 @@ paris_ts19_aic_params <- find_aic_params(paris_ts19)
 ```
 
 
-The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following : `r paris_ts19_aic_params` *(p,d,q)x(P,D,Q)[12]*
+*With the Aikaike Information Criterion the goal is to minimize this criterion with the different parameters of our model.*
+
+**The parameters obtained are the following :** `r format_arima_params(paris_ts19_aic_params$min_AIC_params)`
 
 
 #### BIC
 
-```{r, eval=FALSE}}
-# BIC parameters
+```{r, eval=FALSE}
+# AIC parameters
 paris_ts19_bic_params <- find_bic_params(paris_ts19)
 # do not forget to save this new variable when you run this command
 ```
 
-The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following : `r paris_ts19_bic_params` *(p,d,q)x(P,D,Q)[12]*
+
+*With the Bayesian Information Criterion the goal is to minimize this criterion with the different parameters of our model.*
+
+**The parameters obtained are the following :** `r format_arima_params(paris_ts19_bic_params$min_BIC_params)`
 
 :::
 
@@ -645,20 +648,23 @@ madrid_ts19_aic_params <- find_aic_params(madrid_ts19)
 ```
 
 
-The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following : `r madrid_ts19_aic_params` *(p,d,q)x(P,D,Q)[12]*
+*With the Aikaike Information Criterion the goal is to minimize this criterion with the different parameters of our model.*
+
+**The parameters obtained are the following :** `r format_arima_params(madrid_ts19_aic_params$min_AIC_params)`
 
 
 #### BIC
 
-```{r, eval=FALSE}}
-# BIC parameters
+```{r, eval=FALSE}
+# AIC parameters
 madrid_ts19_bic_params <- find_bic_params(madrid_ts19)
 # do not forget to save this new variable when you run this command
 ```
 
-The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following : `r madrid_ts19_bic_params` *(p,d,q)x(P,D,Q)[12]*
+
+*With the Bayesian Information Criterion the goal is to minimize this criterion with the different parameters of our model.*
+
+**The parameters obtained are the following :** `r format_arima_params(madrid_ts19_bic_params$min_BIC_params)`
 
 :::
 
@@ -674,20 +680,23 @@ roma_ts19_aic_params <- find_aic_params(roma_ts19)
 ```
 
 
-The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following : `r roma_ts19_aic_params` *(p,d,q)x(P,D,Q)[12]*
+*With the Aikaike Information Criterion the goal is to minimize this criterion with the different parameters of our model.*
+
+**The parameters obtained are the following :** `r format_arima_params(roma_ts19_aic_params$min_AIC_params)`
 
 
 #### BIC
 
-```{r, eval=FALSE}}
-# BIC parameters
+```{r, eval=FALSE}
+# AIC parameters
 roma_ts19_bic_params <- find_bic_params(roma_ts19)
 # do not forget to save this new variable when you run this command
 ```
 
-The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following : `r roma_ts19_bic_params` *(p,d,q)x(P,D,Q)[12]*
+
+*With the Bayesian Information Criterion the goal is to minimize this criterion with the different parameters of our model.*
+
+**The parameters obtained are the following :** `r format_arima_params(roma_ts19_bic_params$min_BIC_params)`
 
 :::
 
@@ -703,20 +712,23 @@ copenhagen_ts19_aic_params <- find_aic_params(copenhagen_ts19)
 ```
 
 
-The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following : `r copenhagen_ts19_aic_params` *(p,d,q)x(P,D,Q)[12]*
+*With the Aikaike Information Criterion the goal is to minimize this criterion with the different parameters of our model.*
+
+**The parameters obtained are the following :** `r format_arima_params(copenhagen_ts19_aic_params$min_AIC_params)`
 
 
 #### BIC
 
 ```{r, eval=FALSE}
-# BIC parameters
+# AIC parameters
 copenhagen_ts19_bic_params <- find_bic_params(copenhagen_ts19)
 # do not forget to save this new variable when you run this command
 ```
 
-The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following : `r copenhagen_ts19_bic_params` *(p,d,q)x(P,D,Q)[12]*
+
+*With the Bayesian Information Criterion the goal is to minimize this criterion with the different parameters of our model.*
+
+**The parameters obtained are the following :** `r format_arima_params(copenhagen_ts19_bic_params$min_BIC_params)`
 
 :::
 
@@ -732,34 +744,25 @@ oslo_ts19_aic_params <- find_aic_params(oslo_ts19)
 ```
 
 
-The Aikaike Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following : `r oslo_ts19_aic_params` *(p,d,q)x(P,D,Q)[12]*
+*With the Aikaike Information Criterion the goal is to minimize this criterion with the different parameters of our model.*
+
+**The parameters obtained are the following :** `r format_arima_params(oslo_ts19_aic_params$min_AIC_params)`
 
 
 #### BIC
 
 ```{r, eval=FALSE}
-# BIC parameters
+# AIC parameters
 oslo_ts19_bic_params <- find_bic_params(oslo_ts19)
 # do not forget to save this new variable when you run this command
 ```
 
-The Bayesian Information Criterion : the goal is to minimize this criterion with the different parameters of our model.
-The parameters obtained are the following : `r oslo_ts19_bic_params` *(p,d,q)x(P,D,Q)[12]*
+
+*With the Bayesian Information Criterion the goal is to minimize this criterion with the different parameters of our model.*
+
+**The parameters obtained are the following :** `r format_arima_params(oslo_ts19_bic_params$min_BIC_params)`
 
 :::
-
-
-```{r, eval=FALSE}
-# Here we save all our parameters
-save(paris_ts19_aic_params, paris_ts19_bic_params,
-     madrid_ts19_aic_params, madrid_ts19_bic_params,
-     roma_ts19_aic_params, roma_ts19_bic_params,
-     copenhagen_ts19_aic_params, copenhagen_ts19_bic_params,
-     oslo_ts19_aic_params, oslo_ts19_bic_params,
-     file = "hyperparameters.RData")
-```
-
 
 # SARIMA
 
@@ -777,7 +780,7 @@ Parameters used : 'r paris_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
 non_seasonal_order <- paris_ts19_aic_params$min_AIC_params[1:3]
 seasonal_order <- paris_ts19_aic_params$min_AIC_params[4:6]
 # Fitting the model
-sarima_model_aic_paris <- Arima(paris_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
+sarima_aic_paris <- Arima(paris_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
 
 #### Residuals
@@ -785,9 +788,9 @@ sarima_model_aic_paris <- Arima(paris_ts19, order=non_seasonal_order, seasonal=l
 Interpretation of the residuals :
 
 ```{r}
-sarima_model_aic_paris_residuals <- checkresiduals(sarima_model_aic_paris)
-p_value <- sarima_model_aic_paris_residuals$p.value
-checkresiduals(sarima_model_aic_paris)
+sarima_aic_paris_residuals <- checkresiduals(sarima_aic_paris)
+p_value <- sarima_aic_paris_residuals$p.value
+checkresiduals(sarima_aic_paris)
 ```
 
 -   **The Ljung-Box test**, if we get $p-value < 0.05$, we reject the null hypothesis.
@@ -812,7 +815,7 @@ checkresiduals(sarima_model_aic_paris)
 
 ```{r}
 # Prediction of the 12 next months
-forecasts_aic_paris <- forecast(sarima_model_aic_paris, h=41)
+forecasts_aic_paris <- forecast(sarima_aic_paris, h=41)
 #str(forecasts)
 plot(forecasts_aic_paris)
 ```
@@ -821,15 +824,16 @@ plot(forecasts_aic_paris)
 
 ```{r}
 # Information on the model
-sarima_model_aic_paris
+sarima_aic_paris
 ```
+
 #### Difference
 
 We first plot the forecasted data and the actual data to see the difference.
 
 ```{r, echo=FALSE} 
-# Forecast the next 32 periods
-forecasted_values_paris <- forecast(sarima_model_aic_paris, h=41)
+# Forecast the next 41 periods
+forecasted_values_paris <- forecast(sarima_aic_paris, h=41)
 
 # For actual data: Create a tibble/data frame with time and actual values
 actual_data_paris <- tibble(
@@ -855,7 +859,6 @@ ggplot(data = combined_data_paris, aes(x = time, y = Value, color = Type)) +
   geom_line() +
   labs(title = "Charles de Gaulles passenger traffic forecast", x = "Time", y = "Value") +
   theme_minimal()
-
 ```
 
 Then we plot the difference between the forecasted and actual values.
@@ -876,7 +879,6 @@ ggplot(data = forecast_data_paris, aes(x = time, y = diff, color = Type)) +
 
 The we divide this difference by the forecasted value to see the scaled difference.
 
-
 ```{r, echo=FALSE}
 # Scaling the difference
 forecast_data_paris$scalediff <- forecast_data_paris$diff / forecast_data_paris$Value
@@ -896,12 +898,14 @@ ggplot(data = forecast_data_paris, aes(x = time, y = scalediff, color = Type)) +
 ::: panel-tabset
 #### Model
 
-```{r}
-print(min_BIC_params_paris)
-```
+Parameters used : 'r paris_ts19_bic_params$min_BIC_params` *(p,d,q)x(P,D,Q)[12]*
 
 ```{r}
-sarima_model_bic_paris <- Arima(paris_ts19, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
+# Setting the parameters
+non_seasonal_order <- paris_ts19_bic_params$min_BIC_params[1:3]
+seasonal_order <- paris_ts19_bic_params$min_BIC_params[4:6]
+# Fitting the model
+sarima_bic_paris <- Arima(paris_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
 
 #### Residuals
@@ -909,14 +913,14 @@ sarima_model_bic_paris <- Arima(paris_ts19, order=c(0,1,1), seasonal=list(order=
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_bic_paris)
+checkresiduals(sarima_bic_paris)
 ```
 
 #### Prediction
 
 ```{r}
 # Prediction of the 12 next months
-forecasts_bic_paris <- forecast(sarima_model_bic_paris, h=41)
+forecasts_bic_paris <- forecast(sarima_bic_paris, h=41)
 #str(forecasts)
 plot(forecasts_bic_paris)
 ```
@@ -925,7 +929,7 @@ plot(forecasts_bic_paris)
 
 ```{r}
 # Information on the model
-sarima_model_bic_paris
+sarima_bic_paris
 ```
 :::
 
@@ -934,14 +938,17 @@ sarima_model_bic_paris
 #### Parameters with AIC
 
 ::: panel-tabset
+
 #### Model
 
-```{r}
-print(min_AIC_params_madrid)
-```
+Parameters used : 'r madrid_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
 
 ```{r}
-sarima_model_aic_madrid <- Arima(madrid_ts19, order=c(2,1,2), seasonal=list(order=c(0,1,1), period=12))
+# Setting the parameters
+non_seasonal_order <- madrid_ts19_aic_params$min_AIC_params[1:3]
+seasonal_order <- madrid_ts19_aic_params$min_AIC_params[4:6]
+# Fitting the model
+sarima_aic_madrid <- Arima(madrid_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
 
 #### Residuals
@@ -949,14 +956,14 @@ sarima_model_aic_madrid <- Arima(madrid_ts19, order=c(2,1,2), seasonal=list(orde
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_aic_madrid)
+checkresiduals(sarima_aic_madrid)
 ```
 
 #### Prediction
 
 ```{r}
 # Prediction of the 12 next months
-forecasts_aic_madrid <- forecast(sarima_model_aic_madrid, h=41)
+forecasts_aic_madrid <- forecast(sarima_aic_madrid, h=41)
 #str(forecasts)
 plot(forecasts_aic_madrid)
 ```
@@ -965,17 +972,18 @@ plot(forecasts_aic_madrid)
 
 ```{r}
 # Information on the model
-sarima_model_aic_madrid
+sarima_aic_madrid
 ```
 
-```{r}
+#### Difference
 
-#Forecast the next 41 periods
+We take the same steps as for Paris CDG
 
-forecasted_values_madrid <- forecast(sarima_model_aic_madrid, h=41)
+```{r, echo=FALSE}
+# Forecast the next 41 periods
+forecasted_values_madrid <- forecast(sarima_aic_madrid, h=41)
 
-#For actual data: Create a tibble/data frame with time and actual values
-
+# For actual data: Create a tibble/data frame with time and actual values
 actual_data_madrid <- tibble(
 time = as.Date(time(madrid_ts)),
 Value = as.vector(madrid_ts),
@@ -984,54 +992,44 @@ Type = 'Actual'
 
 actual_data_madrid <- actual_data_madrid[actual_data_madrid$time <= as.Date("2023-05-01"), ]
 
-#For forecasted data: Create a tibble/data frame with forecasted times and values
-
+# For forecasted data: Create a tibble/data frame with forecasted times and values
 forecast_data_madrid <- tibble(
 time = as.Date(time(forecasted_values_madrid$mean)),
 Value = as.vector(forecasted_values_madrid$mean),
 Type = 'Forecast SARIMA'
 )
 
-#Combine actual and forecasted data
-
+# Combine actual and forecasted data
 combined_data_madrid <- bind_rows(actual_data_madrid, forecast_data_madrid)
 
-#Plot using ggplot2
-
+# Plot using ggplot2
 ggplot(data = combined_data_madrid, aes(x = time, y = Value, color = Type)) +
 geom_line() +
 labs(title = "Madrid passenger traffic forecast", x = "Time", y = "Value") +
 theme_minimal()
 ```
 
-#### Difference
 
-We take the same steps as for Paris CDG
-
-```{r}
-
-#Plot of the difference between prediction and actual data
-
+```{r, echo=FALSE}
+# Plot of the difference between prediction and actual data
 actual_data_subset_madrid <- actual_data_madrid[actual_data_madrid$time >= as.Date("2020-01-01"),]
 
-#Calculate the difference between forecasted and actual values
-
+# Calculate the difference between forecasted and actual values
 forecast_data_madrid$diff <- forecast_data_madrid$Value - actual_data_subset_madrid$Value
 
-#Plot the difference using ggplot2
-
+# Plot the difference using ggplot2
 ggplot(data = forecast_data_madrid, aes(x = time, y = diff, color = Type)) +
 geom_line() +
 labs(title = "Difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
 theme_minimal()
 ```
 
-```{r}
 
-#Plot of the scaled difference between prediction and actual data
-
+```{r, echo=FALSE}
+# Plot of the scaled difference between prediction and actual data
 forecast_data_madrid$scalediff <- forecast_data_madrid$diff / forecast_data_madrid$Value
 
+# Plot the scaled difference using ggplot2
 ggplot(data = forecast_data_madrid, aes(x = time, y = scalediff, color = Type)) +
 geom_line() +
 labs(title = "Scaled difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
@@ -1045,12 +1043,14 @@ theme_minimal()
 ::: panel-tabset
 #### Model
 
-```{r}
-print(min_BIC_params_madrid)
-```
+Parameters used : 'r madrid_ts19_bic_params$min_BIC_params` *(p,d,q)x(P,D,Q)[12]*
 
 ```{r}
-sarima_model_bic_madrid <- Arima(madrid_ts19, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
+# Setting the parameters
+non_seasonal_order <- madrid_ts19_bic_params$min_BIC_params[1:3]
+seasonal_order <- madrid_ts19_bic_params$min_BIC_params[4:6]
+# Fitting the model
+sarima_bic_madrid <- Arima(madrid_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
 
 #### Residuals
@@ -1058,14 +1058,14 @@ sarima_model_bic_madrid <- Arima(madrid_ts19, order=c(0,1,1), seasonal=list(orde
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_bic_madrid)
+checkresiduals(sarima_bic_madrid)
 ```
 
 #### Prediction
 
 ```{r}
 # Prediction of the 12 next months
-forecasts_bic_madrid <- forecast(sarima_model_bic_madrid, h=41)
+forecasts_bic_madrid <- forecast(sarima_bic_madrid, h=41)
 #str(forecasts)
 plot(forecasts_bic_madrid)
 ```
@@ -1074,7 +1074,7 @@ plot(forecasts_bic_madrid)
 
 ```{r}
 # Information on the model
-sarima_model_bic_madrid
+sarima_bic_madrid
 ```
 :::
 
@@ -1085,12 +1085,14 @@ sarima_model_bic_madrid
 ::: panel-tabset
 #### Model
 
-```{r}
-print(min_AIC_params_roma)
-```
+Parameters used : 'r roma_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
 
 ```{r}
-sarima_model_aic_roma <- Arima(roma_ts19, order=c(1,1,2), seasonal=list(order=c(0,1,1), period=12))
+# Setting the parameters
+non_seasonal_order <- roma_ts19_aic_params$min_AIC_params[1:3]
+seasonal_order <- roma_ts19_aic_params$min_AIC_params[4:6]
+# Fitting the model
+sarima_aic_roma <- Arima(roma_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
 
 #### Residuals
@@ -1098,14 +1100,14 @@ sarima_model_aic_roma <- Arima(roma_ts19, order=c(1,1,2), seasonal=list(order=c(
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_aic_roma)
+checkresiduals(sarima_aic_roma)
 ```
 
 #### Prediction
 
 ```{r}
 # Prediction of the 12 next months
-forecasts_aic_roma <- forecast(sarima_model_aic_roma, h=41)
+forecasts_aic_roma <- forecast(sarima_aic_roma, h=41)
 #str(forecasts)
 plot(forecasts_aic_roma)
 ```
@@ -1114,19 +1116,17 @@ plot(forecasts_aic_roma)
 
 ```{r}
 # Information on the model
-sarima_model_aic_roma
+sarima_aic_roma
 ```
 #### Difference
 
 We take the same steps as for Paris CDG
 
-```{r}
+```{r, echo=FALSE}
 # Forecast the next 41 periods
-
-forecasted_values_roma <- forecast(sarima_model_aic_roma, h=41)
+forecasted_values_roma <- forecast(sarima_aic_roma, h=41)
 
 # For actual data: Create a tibble/data frame with time and actual values
-
 actual_data_roma <- tibble(
   time = as.Date(time(roma_ts)),
   Value = as.vector(roma_ts),
@@ -1136,7 +1136,6 @@ actual_data_roma <- tibble(
 actual_data_roma <- actual_data_roma[actual_data_roma$time <= as.Date("2023-05-01"), ]
 
 # For forecasted data: Create a tibble/data frame with forecasted times and values
-
 forecast_data_roma <- tibble(
   time = as.Date(time(forecasted_values_roma$mean)),
   Value = as.vector(forecasted_values_roma$mean),
@@ -1144,43 +1143,34 @@ forecast_data_roma <- tibble(
 )
 
 # Combine actual and forecasted data
-
 combined_data_roma <- bind_rows(actual_data_roma, forecast_data_roma)
 
 # Plot using ggplot2
-
 ggplot(data = combined_data_roma, aes(x = time, y = Value, color = Type)) +
   geom_line() +
   labs(title = "Roma passenger traffic forecast", x = "Time", y = "Value") +
   theme_minimal()
 ```
 
-```{r}
-
-
+```{r, echo=FALSE}
 # Plot of the difference between prediction and actual data
-
 actual_data_subset_roma <- actual_data_roma[actual_data_roma$time >= as.Date("2020-01-01"),]
 
 # Calculate the difference between forecasted and actual values
-
 forecast_data_roma$diff <- forecast_data_roma$Value - actual_data_subset_roma$Value
 
 # Plot the difference using ggplot2
-
 ggplot(data = forecast_data_roma, aes(x = time, y = diff, color = Type)) +
   geom_line() +
   labs(title = "Difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
   theme_minimal()
 ```
 
-```{r}
-
-
+```{r, echo=FALSE}
 # Plot of the scaled difference between prediction and actual data
-
 forecast_data_roma$scalediff <- forecast_data_roma$diff / forecast_data_roma$Value
 
+# Plot the scaled difference using ggplot2
 ggplot(data = forecast_data_roma, aes(x = time, y = scalediff, color = Type)) +
   geom_line() +
   labs(title = "Scaled difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
@@ -1193,12 +1183,14 @@ ggplot(data = forecast_data_roma, aes(x = time, y = scalediff, color = Type)) +
 ::: panel-tabset
 #### Model
 
-```{r}
-print(min_BIC_params_roma)
-```
+Parameters used : 'r roma_ts19_bic_params$min_BIC_params` *(p,d,q)x(P,D,Q)[12]*
 
 ```{r}
-sarima_model_bic_roma <- Arima(roma_ts19, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
+# Setting the parameters
+non_seasonal_order <- roma_ts19_bic_params$min_BIC_params[1:3]
+seasonal_order <- roma_ts19_bic_params$min_BIC_params[4:6]
+# Fitting the model
+sarima_bic_roma <- Arima(roma_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
 
 #### Residuals
@@ -1206,14 +1198,14 @@ sarima_model_bic_roma <- Arima(roma_ts19, order=c(0,1,1), seasonal=list(order=c(
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_bic_roma)
+checkresiduals(sarima_bic_roma)
 ```
 
 #### Prediction
 
 ```{r}
 # Prediction of the 12 next months
-forecasts_bic_roma <- forecast(sarima_model_bic_roma, h=41)
+forecasts_bic_roma <- forecast(sarima_bic_roma, h=41)
 #str(forecasts)
 plot(forecasts_bic_roma)
 ```
@@ -1222,7 +1214,7 @@ plot(forecasts_bic_roma)
 
 ```{r}
 # Information on the model
-sarima_model_bic_roma
+sarima_bic_roma
 ```
 :::
 
@@ -1233,12 +1225,14 @@ sarima_model_bic_roma
 ::: panel-tabset
 #### Model
 
-```{r}
-print(min_AIC_params_kob)
-```
+Parameters used : 'r copenhagen_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
 
 ```{r}
-sarima_model_aic_kob <- Arima(copenhagen_ts19, order=c(1,1,0), seasonal=list(order=c(0,1,2), period=12))
+# Setting the parameters
+non_seasonal_order <- copenhagen_ts19_aic_params$min_AIC_params[1:3]
+seasonal_order <- copenhagen_ts19_aic_params$min_AIC_params[4:6]
+# Fitting the model
+sarima_aic_copenhagen <- Arima(copenhagen_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
 
 #### Residuals
@@ -1246,92 +1240,79 @@ sarima_model_aic_kob <- Arima(copenhagen_ts19, order=c(1,1,0), seasonal=list(ord
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_aic_kob)
+checkresiduals(sarima_aic_copenhagen)
 ```
 
 #### Prediction
 
 ```{r}
 # Prediction of the 12 next months
-sarima_model_aic_kob <- forecast(sarima_model_aic_kob, h=41)
+sarima_aic_copenhagen <- forecast(sarima_aic_copenhagen, h=41)
 #str(forecasts)
-plot(sarima_model_aic_kob)
+plot(sarima_aic_copenhagen)
 ```
 
 #### Summary
 
 ```{r}
 # Information on the model
-sarima_model_aic_kob
+sarima_aic_copenhagen
 ```
 #### Difference
 
 We take the same steps as for Paris CDG
 
-```{r}
-
-
+```{r, echo=FALSE}
 # Forecast the next 41 periods
-
-forecasted_values_kob <- forecast(sarima_model_aic_kob, h=41)
+forecasted_values_copenhagen <- forecast(sarima_aic_copenhagen, h=41)
 
 # For actual data: Create a tibble/data frame with time and actual values
-
-actual_data_kob <- tibble(
+actual_data_copenhagen <- tibble(
   time = as.Date(time(copenhagen_ts)),
   Value = as.vector(copenhagen_ts),
   Type = 'Actual'
 )
 
-actual_data_kob <- actual_data_kob[actual_data_kob$time <= as.Date("2023-05-01"), ]
+actual_data_copenhagen <- actual_data_copenhagen[actual_data_copenhagen$time <= as.Date("2023-05-01"), ]
 
 # For forecasted data: Create a tibble/data frame with forecasted times and values
-
-forecast_data_kob <- tibble(
-  time = as.Date(time(forecasted_values_kob$mean)),
-  Value = as.vector(forecasted_values_kob$mean),
+forecast_data_copenhagen <- tibble(
+  time = as.Date(time(forecasted_values_copenhagen$mean)),
+  Value = as.vector(forecasted_values_copenhagen$mean),
   Type = 'Forecast SARIMA'
 )
 
 # Combine actual and forecasted data
 
-combined_data_kob <- bind_rows(actual_data_kob, forecast_data_kob)
+combined_data_copenhagen <- bind_rows(actual_data_copenhagen, forecast_data_copenhagen)
 
 # Plot using ggplot2
-
-ggplot(data = combined_data_kob, aes(x = time, y = Value, color = Type)) +
+ggplot(data = combined_data_copenhagen, aes(x = time, y = Value, color = Type)) +
   geom_line() +
-  labs(title = "Kob passenger traffic forecast", x = "Time", y = "Value") +
+  labs(title = "Copenhagen passenger traffic forecast", x = "Time", y = "Value") +
   theme_minimal()
 ```
 
-```{r}
-
+```{r, echo=FALSE}
 # Plot of the difference between prediction and actual data
-
-actual_data_subset_kob <- actual_data_kob[actual_data_kob$time >= as.Date("2020-01-01"),]
+actual_data_subset_copenhagen <- actual_data_copenhagen[actual_data_copenhagen$time >= as.Date("2020-01-01"),]
 
 # Calculate the difference between forecasted and actual values
-
-forecast_data_kob$diff <- forecast_data_kob$Value - actual_data_subset_kob$Value
+forecast_data_copenhagen$diff <- forecast_data_copenhagen$Value - actual_data_subset_copenhagen$Value
 
 # Plot the difference using ggplot2
-
-ggplot(data = forecast_data_kob, aes(x = time, y = diff, color = Type)) +
+ggplot(data = forecast_data_copenhagen, aes(x = time, y = diff, color = Type)) +
   geom_line() +
   labs(title = "Difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
   theme_minimal()
-
 ```
 
-```{r}
-
-
+```{r, echo=FALSE}
 # Plot of the scaled difference between prediction and actual data
+forecast_data_copenhagen$scalediff <- forecast_data_copenhagen$diff / forecast_data_copenhagen$Value
 
-forecast_data_kob$scalediff <- forecast_data_kob$diff / forecast_data_kob$Value
-
-ggplot(data = forecast_data_kob, aes(x = time, y = scalediff, color = Type)) +
+# Plot the scaled difference using ggplot2
+ggplot(data = forecast_data_copenhagen, aes(x = time, y = scalediff, color = Type)) +
   geom_line() +
   labs(title = "Scaled difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
   theme_minimal()
@@ -1343,12 +1324,14 @@ ggplot(data = forecast_data_kob, aes(x = time, y = scalediff, color = Type)) +
 ::: panel-tabset
 #### Model
 
-```{r}
-print(min_BIC_params_kob)
-```
+Parameters used : 'r copenhagen_ts19_bic_params$min_BIC_params` *(p,d,q)x(P,D,Q)[12]*
 
 ```{r}
-sarima_model_bic_kob <- Arima(copenhagen_ts19, order=c(0,1,0), seasonal=list(order=c(0,1,1), period=12))
+# Setting the parameters
+non_seasonal_order <- copenhagen_ts19_bic_params$min_BIC_params[1:3]
+seasonal_order <- copenhagen_ts19_bic_params$min_BIC_params[4:6]
+# Fitting the model
+sarima_bic_copenhagen <- Arima(copenhagen_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
 
 #### Residuals
@@ -1356,23 +1339,23 @@ sarima_model_bic_kob <- Arima(copenhagen_ts19, order=c(0,1,0), seasonal=list(ord
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_bic_kob)
+checkresiduals(sarima_bic_copenhagen)
 ```
 
 #### Prediction
 
 ```{r}
 # Prediction of the 12 next months
-forecasts_bic_kob <- forecast(sarima_model_bic_kob, h=41)
+forecasts_bic_copenhagen <- forecast(sarima_bic_copenhagen, h=41)
 #str(forecasts)
-plot(forecasts_bic_kob)
+plot(forecasts_bic_copenhagen)
 ```
 
 #### Summary
 
 ```{r}
 # Information on the model
-sarima_model_bic_kob
+sarima_bic_copenhagen
 ```
 :::
 
@@ -1383,12 +1366,14 @@ sarima_model_bic_kob
 ::: panel-tabset
 #### Model
 
-```{r}
-print(min_AIC_params_oslo)
-```
+Parameters used : 'r oslo_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
 
 ```{r}
-sarima_model_aic_oslo <- Arima(oslo_ts19, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
+# Setting the parameters
+non_seasonal_order <- oslo_ts19_aic_params$min_AIC_params[1:3]
+seasonal_order <- oslo_ts19_aic_params$min_AIC_params[4:6]
+# Fitting the model
+sarima_aic_oslo <- Arima(oslo_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
 
 #### Residuals
@@ -1396,14 +1381,14 @@ sarima_model_aic_oslo <- Arima(oslo_ts19, order=c(0,1,1), seasonal=list(order=c(
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_aic_oslo)
+checkresiduals(sarima_aic_oslo)
 ```
 
 #### Prediction
 
 ```{r}
 # Prediction of the 12 next months
-forecasts_aic_oslo <- forecast(sarima_model_aic_oslo, h=41)
+forecasts_aic_oslo <- forecast(sarima_aic_oslo, h=41)
 #str(forecasts)
 plot(forecasts_aic_oslo)
 ```
@@ -1412,21 +1397,17 @@ plot(forecasts_aic_oslo)
 
 ```{r}
 # Information on the model
-sarima_model_aic_oslo
+sarima_aic_oslo
 ```
 #### Difference
 
 We take the same steps as for Paris CDG
 
-```{r}
-
-
+```{r, echo=FALSE}
 # Forecast the next 41 periods
-
-forecasted_values_oslo <- forecast(sarima_model_aic_oslo, h=41)
+forecasted_values_oslo <- forecast(sarima_aic_oslo, h=41)
 
 # For actual data: Create a tibble/data frame with time and actual values
-
 actual_data_oslo <- tibble(
   time = as.Date(time(oslo_ts)),
   Value = as.vector(oslo_ts),
@@ -1436,7 +1417,6 @@ actual_data_oslo <- tibble(
 actual_data_oslo <- actual_data_oslo[actual_data_oslo$time <= as.Date("2023-05-01"), ]
 
 # For forecasted data: Create a tibble/data frame with forecasted times and values
-
 forecast_data_oslo <- tibble(
   time = as.Date(time(forecasted_values_oslo$mean)),
   Value = as.vector(forecasted_values_oslo$mean),
@@ -1444,43 +1424,34 @@ forecast_data_oslo <- tibble(
 )
 
 # Combine actual and forecasted data
-
 combined_data_oslo <- bind_rows(actual_data_oslo, forecast_data_oslo)
 
 # Plot using ggplot2
-
 ggplot(data = combined_data_oslo, aes(x = time, y = Value, color = Type)) +
   geom_line() +
   labs(title = "Oslo passenger traffic forecast", x = "Time", y = "Value") +
   theme_minimal()
 ```
 
-```{r}
-
-
+```{r, echo=FALSE}
 # Plot of the difference between prediction and actual data
-
 actual_data_subset_oslo <- actual_data_oslo[actual_data_oslo$time >= as.Date("2020-01-01"),]
 
 # Calculate the difference between forecasted and actual values
-
 forecast_data_oslo$diff <- forecast_data_oslo$Value - actual_data_subset_oslo$Value
 
 # Plot the difference using ggplot2
-
 ggplot(data = forecast_data_oslo, aes(x = time, y = diff, color = Type)) +
   geom_line() +
   labs(title = "Difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
   theme_minimal()
 ```
 
-```{r}
-
-
+```{r, echo=FALSE}
 # Plot of the scaled difference between prediction and actual data
-
 forecast_data_oslo$scalediff <- forecast_data_oslo$diff / forecast_data_oslo$Value
 
+# Plot the scaled difference using ggplot2
 ggplot(data = forecast_data_oslo, aes(x = time, y = scalediff, color = Type)) +
   geom_line() +
   labs(title = "Scaled difference between Forecasted and Actual Values", x = "Time", y = "Difference") +
@@ -1495,12 +1466,14 @@ ggplot(data = forecast_data_oslo, aes(x = time, y = scalediff, color = Type)) +
 
 #### Model
 
-```{r}
-print(min_BIC_params_oslo)
-```
+Parameters used : 'r oslo_ts19_bic_params$min_BIC_params` *(p,d,q)x(P,D,Q)[12]*
 
 ```{r}
-sarima_model_bic_oslo <- Arima(oslo_ts19, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
+# Setting the parameters
+non_seasonal_order <- oslo_ts19_bic_params$min_BIC_params[1:3]
+seasonal_order <- oslo_ts19_bic_params$min_BIC_params[4:6]
+# Fitting the model
+sarima_bic_oslo <- Arima(oslo_ts19, order=non_seasonal_order, seasonal=list(order=seasonal_order, period=12))
 ```
 
 #### Residuals
@@ -1508,14 +1481,14 @@ sarima_model_bic_oslo <- Arima(oslo_ts19, order=c(0,1,1), seasonal=list(order=c(
 Interpretation of the residuals :
 
 ```{r}
-checkresiduals(sarima_model_bic_oslo)
+checkresiduals(sarima_bic_oslo)
 ```
 
 #### Prediction
 
 ```{r}
 # Prediction of the 12 next months
-forecasts_bic_oslo <- forecast(sarima_model_bic_oslo, h=41)
+forecasts_bic_oslo <- forecast(sarima_bic_oslo, h=41)
 #str(forecasts)
 plot(forecasts_bic_oslo)
 ```
@@ -1524,11 +1497,11 @@ plot(forecasts_bic_oslo)
 
 ```{r}
 # Information on the model
-sarima_model_bic_oslo
+sarima_bic_oslo
 ```
 :::
 
-# Comparing the difference
+## Comparing the difference
 
 The scale differences are displayed on the same plot for comparison.
 
@@ -1538,7 +1511,7 @@ combined_data_all <- bind_rows(
   mutate(forecast_data_paris, City = "Paris"),
   mutate(forecast_data_madrid, City = "Madrid"),
   mutate(forecast_data_roma, City = "Roma"),
-  mutate(forecast_data_kob, City = "Kob"),
+  mutate(forecast_data_copenhagen, City = "Copenhagen"),
   mutate(forecast_data_oslo, City = "Oslo")
 )
 
@@ -1550,144 +1523,198 @@ ggplot(data = combined_data_all, aes(x = time, y = scalediff, color = City)) +
   theme_minimal()
 ```
 
+# SARIMAX
+
+## Policies
+
+We add 3 politics to the dataset :
+
+ - Borders main UE Period
+ - Border non-UE Period
+ - Negative tests Period
+
+We add them as dummies over the same period of our time series. We put a 1 when the policy is applied, and 0 when it is not. We did it by hand on Excel, it was simplier than with R.
 
 
-### Politics
+```{r, echo=FALSE, warning=FALSE}
+library(dplyr)
 
-We add 3 politics to the dataset : - Borders main UE Period - Border non-UE Period - Negative tests Period
-
-We add them as dummies over the same period of our time series.
-We put a 1 when the policy is applied, and 0 when it is not.
-We did it on Excel, it was simplier than with R.
-
-```{r, warning=FALSE, message=FALSE, echo=FALSE}
-# Global dataset
+# Importing our dataset containing the poolicies and the number of passengers
 airports_politics <- openxlsx::read.xlsx(xlsxFile="datasets/DATA_POLITICS.xlsx")
 
-# Dataset for politics and airports
+# Creating one dataframe for policies and one for airports
 col_start <- which(names(airports_politics) == "2002-01")
 col_end <- which(names(airports_politics) == "2023-09")
-library(dplyr)
-airports <- airports_politics %>% dplyr::select(1, col_start : col_end)
+
 politics <- airports_politics %>% dplyr::select(1, (col_end+1):length(airports_politics))
 
-# Dataset for each policy
 
-#a
+# Splitting the dataframe policies to get one for each policy
+# We need the split to pivot each one separatly and then merge them back
+
+# a - Borders main EU period
 col_start_a <- which(names(airports_politics) == "2002-01.a")
 col_end_a <- which(names(airports_politics) == "2023-09.a")
+
 policy_a <- airports_politics %>% dplyr::select(1, col_start_a : col_end_a)
 
-#b
+# b - Borders non-EU period
 col_start_b <- which(names(airports_politics) == "2002-01.b")
 col_end_b <- which(names(airports_politics) == "2023-09.b")
+
 policy_b <- airports_politics %>% dplyr::select(1, col_start_b : col_end_b)
 
-#c
+# c - Negative tests period
 col_start_c <- which(names(airports_politics) == "2002-01.c")
 col_end_c <- which(names(airports_politics) == "2023-09.c")
+
 policy_c <- airports_politics %>% dplyr::select(1, col_start_c : col_end_c)
 ```
 
-```{r, warning=FALSE, message=FALSE, echo=FALSE}
-# Pivot
+```{r, echo=FALSE}
+# Pivoting the dataframes
 policy_a <- tidyr::pivot_longer(policy_a, cols = -c("Airport"), names_to = "Date", values_to = "Borders main EU period")
 policy_b <- tidyr::pivot_longer(policy_b, cols = -c("Airport"), names_to = "Date", values_to = "Borders non-EU period")
 policy_c <- tidyr::pivot_longer(policy_c, cols = -c("Airport"), names_to = "Date", values_to = "Negative tests period")
-airports <- tidyr::pivot_longer(airports, cols = -c("Airport"), names_to = "Date", values_to = "Passenger")
+```
 
-# Formating date
+```{r, echo=FALSE}
+# Modifying the name of the date column
 policy_a$Date <- gsub("\\.a$", "", policy_a$Date)
 policy_b$Date <- gsub("\\.b$", "", policy_b$Date)
 policy_c$Date <- gsub("\\.c$", "", policy_c$Date)
 ```
 
 ```{r, echo=FALSE}
-# Merging
-politics_formate <- merge(airports, policy_a, by = c("Airport", "Date"), all.x = TRUE)
-politics_formate <- merge(politics_formate, policy_b, by = c("Airport", "Date"), all.x = TRUE)
+# Merging the four dataframes to get the final one at the good format
+politics_formate <- merge(policy_a, policy_b, by = c("Airport", "Date"), all.x = TRUE)
 politics_formate <- merge(politics_formate, policy_c, by = c("Airport", "Date"), all.x = TRUE)
+```
 
-# Date format
+```{r, echo=FALSE}
+# Changing the date format
 politics_formate$Date <- zoo::as.Date(paste0(politics_formate$Date, "-01"), format="%Y-%m-%d")
 ```
 
 ```{r, echo=FALSE}
-# Kopenhagen
-kopen <- politics_formate %>% dplyr::filter(Airport == "KOBENHAVN/KASTRUP airport")
-# Madrid
-madrid <- politics_formate %>% dplyr::filter(Airport == "ADOLFO SUAREZ MADRID-BARAJAS airport")
-# Oslo
-oslo <- politics_formate %>% dplyr::filter(Airport == "OSLO/GARDERMOEN airport")
-# Paris
-paris <- politics_formate %>% dplyr::filter(Airport == "PARIS-CHARLES DE GAULLE airport")
-# Roma
-roma <- politics_formate %>% dplyr::filter(Airport == "ROMA/FIUMICINO airport")
+paris_policies <- politics_formate[politics_formate$Airport == "PARIS-CHARLES DE GAULLE airport",]
+madrid_policies <- politics_formate[politics_formate$Airport == "ADOLFO SUAREZ MADRID-BARAJAS airport",]
+roma_policies <- politics_formate[politics_formate$Airport == "ROMA/FIUMICINO airport",]
+copenhagen_policies <- politics_formate[politics_formate$Airport == "KOBENHAVN/KASTRUP airport",]
+oslo_policies <- politics_formate[politics_formate$Airport == "OSLO/GARDERMOEN airport",]
 ```
 
 ::: panel-tabset
-#### Kopenhaven
+
+#### Paris
 
 ```{r, echo=FALSE}
-styled_dt(kopen)
+styled_dt(paris_policies[paris_policies$Date >= as.Date("2020-01-01") & paris_policies$Date <= as.Date("2022-10-01"),])
 ```
 
 #### Madrid
 
 ```{r, echo=FALSE}
-styled_dt(madrid)
-```
-
-#### Oslo
-
-```{r, echo=FALSE}
-styled_dt(oslo)
-```
-
-#### Paris
-
-```{r, echo=FALSE}
-styled_dt(paris)
+styled_dt(madrid_policies[madrid_policies$Date >= as.Date("2020-01-01") & madrid_policies$Date <= as.Date("2022-10-01"),])
 ```
 
 #### Roma
 
 ```{r, echo=FALSE}
-styled_dt(roma)
+styled_dt(roma_policies[roma_policies$Date >= as.Date("2020-01-01") & roma_policies$Date <= as.Date("2022-10-01"),])
 ```
+
+#### Copenhagen
+
+```{r, echo=FALSE}
+styled_dt(copenhagen_policies[copenhagen_policies$Date >= as.Date("2020-01-01") & copenhagen_policies$Date <= as.Date("2022-10-01"),])
+```
+
+#### Oslo
+
+```{r, echo=FALSE}
+styled_dt(oslo_policies[oslo_policies$Date >= as.Date("2020-01-01") & oslo_policies$Date <= as.Date("2022-10-01"),])
+```
+
 :::
 
-### New SARIMA model for Paris
+## Model
 
-#### Model
+
+### Integrating the COVID effect to our SARIMAX model
 
 ```{r}
-# Ensure the external regressors are in the correct format
-#paris_20 <- paris[paris$Date<="2020-09-01"]
-#external_regressors <- as.matrix(paris[, c('Borders main EU period', 'Borders non-EU period', 'Negative tests period')])
+# Creating the CovidDummy
+paris$CovidDummy <- ifelse(paris$Date >= as.Date("2020-03-01") & paris$Date <= as.Date("2020-12-01"), 1, 0)
+madrid$CovidDummy <- ifelse(madrid$Date >= as.Date("2020-03-01") & madrid$Date <= as.Date("2020-12-01"), 1, 0)
+roma$CovidDummy <- ifelse(roma$Date >= as.Date("2020-03-01") & roma$Date <= as.Date("2020-12-01"), 1, 0)
+copenhagen$CovidDummy <- ifelse(copenhagen$Date >= as.Date("2020-03-01") & copenhagen$Date <= as.Date("2020-12-01"), 1, 0)
+oslo$CovidDummy <- ifelse(oslo$Date >= as.Date("2020-03-01") & oslo$Date <= as.Date("2020-12-01"), 1, 0)
+```
 
-# Fit the SARIMAX model
-#auto.arima(paris_ts20, xreg = external_regressors, seasonal = TRUE)
+```{r, echo=FALSE}
+# Exogenous variables for our SARIMAX models
+paris_covid <- paris$CovidDummy
+madrid_covid <- madrid$CovidDummy
+roma_covid <- roma$CovidDummy
+copenhagen_covid <- copenhagen$CovidDummy
+oslo_covid <- oslo$CovidDummy
+```
+
+
+```{r, echo=FALSE, eval=FALSE}
+## Models estimation##
+# Paris
+sarimax_auto_paris <- auto.arima(paris_ts, xreg=paris_covid, seasonal=TRUE, stepwise = FALSE, approximation = FALSE)
+# Madrid
+sarimax_auto_madrid <- auto.arima(madrid_ts, xreg=madrid_covid, seasonal=TRUE, stepwise = FALSE, approximation = FALSE)
+# Roma
+sarimax_auto_roma <- auto.arima(roma_ts, xreg=roma_covid, seasonal=TRUE, stepwise = FALSE, approximation = FALSE)
+# Copenhagen
+sarimax_auto_copenhagen <- auto.arima(copenhagen_ts, xreg=copenhagen_covid, seasonal=TRUE, stepwise = FALSE, approximation = FALSE)
+# Oslo
+sarimax_auto_oslo <- auto.arima(oslo_ts, xreg=oslo_covid, seasonal=TRUE, stepwise = FALSE, approximation = FALSE)
+```
+
+```{r, echo=FALSE, eval=FALSE}
+# Here we save the parameters to avoid having to run again the functions auto.arima each time
+paris_auto_params <- reorder_params(sarimax_auto_paris$arma)
+madrid_auto_params <- reorder_params(sarimax_auto_madrid$arma)
+roma_auto_params <- reorder_params(sarimax_auto_roma$arma)
+copenhagen_auto_params <- reorder_params(sarimax_auto_copenhagen$arma)
+oslo_auto_params <- reorder_params(sarimax_auto_oslo$arma)
 ```
 
 ```{r}
-sarima_model_aic_paris2 <- Arima(paris_ts20, order=c(0,1,1), seasonal=list(order=c(0,1,1), period=12))
+## Models fitting ##
+# Paris
+sarimax_paris <- Arima(paris_ts, order=paris_auto_params[1:3], seasonal=paris_auto_params[4:6], xreg=paris_covid)
+# Madrid
+sarimax_madrid <- Arima(madrid_ts, order=madrid_auto_params[1:3], seasonal=madrid_auto_params[4:6], xreg=madrid_covid)
+# Roma
+sarimax_roma <- Arima(roma_ts, order=roma_auto_params[1:3], seasonal=roma_auto_params[4:6], xreg=roma_covid)
+# Copenhagen
+sarimax_copenhagen <- Arima(copenhagen_ts, order=copenhagen_auto_params[1:3], seasonal=copenhagen_auto_params[4:6], xreg=copenhagen_covid)
+# Oslo
+sarimax_oslo <- Arima(oslo_ts, order=oslo_auto_params[1:3], seasonal=oslo_auto_params[4:6], xreg=oslo_covid)
 ```
 
-#### Residuals
+### Prediction
 
-Interpretation of the residuals :
+Here we predict for each city the number of passengers for the next 300 months (straight to 2045). To do so we make a forecast with our SARIMAX model for each country and we compare it with our forecast with the SARIMA model.
 
-```{r}
-checkresiduals(sarima_model_aic_paris2)
+::: panel-tabset
+
+#### Paris
+
+```{r, echo=FALSE}
+# Forecast for 2045
+forecasted_values_sarimax <- forecast::forecast(sarimax_paris, xreg=paris_covid)
+forecasted_values_sarima <- forecast::forecast(sarima_aic_paris, h=300)
 ```
 
-#### Prediction
 
-```{r}
-# Forecast the next 32 periods
-forecasted_values <- forecast(sarima_model_aic_paris, h=32)
-
+```{r, echo=FALSE}
 # For actual data: Create a tibble/data frame with time and actual values
 actual_data <- tibble(
   time = as.Date(time(paris_ts)),
@@ -1696,14 +1723,23 @@ actual_data <- tibble(
 )
 
 # For forecasted data: Create a tibble/data frame with forecasted times and values
-forecast_data <- tibble(
-  time = as.Date(time(forecasted_values$mean)),
-  Value = as.vector(forecasted_values$mean),
-  Type = 'Forecast'
+
+# SARIMAX
+forecast_data_sarimax <- tibble(
+  time = as.Date(time(forecasted_values_sarimax$mean)),
+  Value = as.vector(forecasted_values_sarimax$mean),
+  Type = 'Forecast SARIMAX'
+)
+
+# SARIMA
+forecast_data_sarima <- tibble(
+  time = as.Date(time(forecasted_values_sarima$mean)),
+  Value = as.vector(forecasted_values_sarima$mean),
+  Type = 'Forecast SARIMA'
 )
 
 # Combine actual and forecasted data
-combined_data <- bind_rows(actual_data, forecast_data)
+combined_data <- bind_rows(actual_data, forecast_data_sarimax, forecast_data_sarima)
 
 # Plot using ggplot2
 ggplot(data = combined_data, aes(x = time, y = Value, color = Type)) +
@@ -1713,18 +1749,196 @@ ggplot(data = combined_data, aes(x = time, y = Value, color = Type)) +
 
 ```
 
-#### Summary
+#### Madrid
 
-```{r}
-# Information on the model
-sarima_model_aic_paris2
+```{r, echo=FALSE}
+# Forecast for 2045
+forecasted_values_sarimax <- forecast::forecast(sarimax_madrid, xreg=madrid_covid)
+forecasted_values_sarima <- forecast::forecast(sarima_aic_madrid, h=300)
 ```
 
 
+```{r, echo=FALSE}
+# For actual data: Create a tibble/data frame with time and actual values
+actual_data <- tibble(
+  time = as.Date(time(madrid_ts)),
+  Value = as.vector(madrid_ts),
+  Type = 'Actual'
+)
+
+# For forecasted data: Create a tibble/data frame with forecasted times and values
+
+# SARIMAX
+forecast_data_sarimax <- tibble(
+  time = as.Date(time(forecasted_values_sarimax$mean)),
+  Value = as.vector(forecasted_values_sarimax$mean),
+  Type = 'Forecast SARIMAX'
+)
+
+# SARIMA
+forecast_data_sarima <- tibble(
+  time = as.Date(time(forecasted_values_sarima$mean)),
+  Value = as.vector(forecasted_values_sarima$mean),
+  Type = 'Forecast SARIMA'
+)
+
+# Combine actual and forecasted data
+combined_data <- bind_rows(actual_data, forecast_data_sarimax, forecast_data_sarima)
+
+# Plot using ggplot2
+ggplot(data = combined_data, aes(x = time, y = Value, color = Type)) +
+  geom_line() +
+  labs(title = "Adolfo Suarez passenger traffic forecast", x = "Time", y = "Value") +
+  theme_minimal()
+
+```
+
+#### Roma
+
+```{r, echo=FALSE}
+# Forecast for 2045
+forecasted_values_sarimax <- forecast::forecast(sarimax_roma, xreg=roma_covid)
+forecasted_values_sarima <- forecast::forecast(sarima_aic_roma, h=300)
+```
 
 
+```{r, echo=FALSE}
+# For actual data: Create a tibble/data frame with time and actual values
+actual_data <- tibble(
+  time = as.Date(time(roma_ts)),
+  Value = as.vector(roma_ts),
+  Type = 'Actual'
+)
+
+# For forecasted data: Create a tibble/data frame with forecasted times and values
+
+# SARIMAX
+forecast_data_sarimax <- tibble(
+  time = as.Date(time(forecasted_values_sarimax$mean)),
+  Value = as.vector(forecasted_values_sarimax$mean),
+  Type = 'Forecast SARIMAX'
+)
+
+# SARIMA
+forecast_data_sarima <- tibble(
+  time = as.Date(time(forecasted_values_sarima$mean)),
+  Value = as.vector(forecasted_values_sarima$mean),
+  Type = 'Forecast SARIMA'
+)
+
+# Combine actual and forecasted data
+combined_data <- bind_rows(actual_data, forecast_data_sarimax, forecast_data_sarima)
+
+# Plot using ggplot2
+ggplot(data = combined_data, aes(x = time, y = Value, color = Type)) +
+  geom_line() +
+  labs(title = "Fiumicino passenger traffic forecast", x = "Time", y = "Value") +
+  theme_minimal()
+
+```
+
+#### Copenhagen
+
+```{r, echo=FALSE}
+# Forecast for 2045
+forecasted_values_sarimax <- forecast::forecast(sarimax_copenhagen, xreg=copenhagen_covid)
+forecasted_values_sarima <- forecast::forecast(sarima_aic_copenhagen)
+```
 
 
+```{r, echo=FALSE}
+# For actual data: Create a tibble/data frame with time and actual values
+actual_data <- tibble(
+  time = as.Date(time(copenhagen_ts)),
+  Value = as.vector(copenhagen_ts),
+  Type = 'Actual'
+)
+
+# For forecasted data: Create a tibble/data frame with forecasted times and values
+
+# SARIMAX
+forecast_data_sarimax <- tibble(
+  time = as.Date(time(forecasted_values_sarimax$mean)),
+  Value = as.vector(forecasted_values_sarimax$mean),
+  Type = 'Forecast SARIMAX'
+)
+
+# SARIMA
+forecast_data_sarima <- tibble(
+  time = as.Date(time(forecasted_values_sarima$mean)),
+  Value = as.vector(forecasted_values_sarima$mean),
+  Type = 'Forecast SARIMA'
+)
+
+# Combine actual and forecasted data
+combined_data <- bind_rows(actual_data, forecast_data_sarimax, forecast_data_sarima)
+
+# Plot using ggplot2
+ggplot(data = combined_data, aes(x = time, y = Value, color = Type)) +
+  geom_line() +
+  labs(title = "Kastrup passenger traffic forecast", x = "Time", y = "Value") +
+  theme_minimal()
+
+```
+
+#### Oslo
+
+```{r, echo=FALSE}
+# Forecast for 2045
+forecasted_values_sarimax <- forecast::forecast(sarimax_oslo, xreg=oslo_covid)
+forecasted_values_sarima <- forecast::forecast(sarima_aic_oslo, h=300)
+```
 
 
+```{r, echo=FALSE}
+# For actual data: Create a tibble/data frame with time and actual values
+actual_data <- tibble(
+  time = as.Date(time(oslo_ts)),
+  Value = as.vector(oslo_ts),
+  Type = 'Actual'
+)
+
+# For forecasted data: Create a tibble/data frame with forecasted times and values
+
+# SARIMAX
+forecast_data_sarimax <- tibble(
+  time = as.Date(time(forecasted_values_sarimax$mean)),
+  Value = as.vector(forecasted_values_sarimax$mean),
+  Type = 'Forecast SARIMAX'
+)
+
+# SARIMA
+forecast_data_sarima <- tibble(
+  time = as.Date(time(forecasted_values_sarima$mean)),
+  Value = as.vector(forecasted_values_sarima$mean),
+  Type = 'Forecast SARIMA'
+)
+
+# Combine actual and forecasted data
+combined_data <- bind_rows(actual_data, forecast_data_sarimax, forecast_data_sarima)
+
+# Plot using ggplot2
+ggplot(data = combined_data, aes(x = time, y = Value, color = Type)) +
+  geom_line() +
+  labs(title = "Gardermoen passenger traffic forecast", x = "Time", y = "Value") +
+  theme_minimal()
+
+```
+
+
+# Saving our hyperparameters
+
+Here we use a method to save our hyperparameters in a file so that we can use them later without running again our big loops. This helps us to get a more efficient code and to save time.
+
+```{r, eval=FALSE}
+# Here we save all our parameters in a database file
+save(paris_ts19_aic_params, paris_ts19_bic_params, paris_auto_params,
+     madrid_ts19_aic_params, madrid_ts19_bic_params, madrid_auto_params,
+     roma_ts19_aic_params, roma_ts19_bic_params, roma_auto_params,
+     copenhagen_ts19_aic_params, copenhagen_ts19_bic_params, copenhagen_auto_params,
+     oslo_ts19_aic_params, oslo_ts19_bic_params, oslo_auto_params,
+     file = "hyperparameters.RData")
+```
+
+:::
 
