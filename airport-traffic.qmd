@@ -1925,6 +1925,8 @@ ggplot(data = combined_data, aes(x = time, y = Value, color = Type)) +
 
 ```
 
+:::
+
 
 # Saving our hyperparameters
 
@@ -1940,5 +1942,4 @@ save(paris_ts19_aic_params, paris_ts19_bic_params, paris_auto_params,
      file = "hyperparameters.RData")
 ```
 
-:::
 
