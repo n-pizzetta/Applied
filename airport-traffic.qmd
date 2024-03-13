@@ -82,14 +82,6 @@ airports_names$Airport <- paste(airports_names$Airport, "airport", sep = " ")
 airports_names <- airports_names %>% mutate(Country = ifelse(Country == "Chile", "Spain", Country))
 ```
 
-### Members of European Union data
-
-This dataset associates 1 to European Union members and 0 to the rest.
-
-```{r}
-# EU
-eu_countries_2019 <- read.csv("datasets/eu_countries_2019.csv")
-```
 :::
 
  
@@ -218,8 +210,14 @@ traffic_checked <- traffic_checked[traffic_checked$Date <= as.Date("2023-05-01")
 ```
 
 ```{r, echo=FALSE}
-write.csv(traffic_checked, file = "datasets/data_airports_cleaned_APP.csv", row.names = FALSE, na = "NA")
-styled_dt(traffic_checked)
+# exporting the final dataset
+write.csv(traffic_checked, file = "datasets/final-dataset.csv", row.names = FALSE, na = "NA")
+```
+
+```{r, echo=FALSE}
+# Displaying the final dataset
+final_dataset <- traffic_checked %>% pivot_wider(names_from = "Date", values_from = "Passengers")
+styled_dt(final_dataset)
 ```
 
 # Plot of our data
@@ -227,24 +225,6 @@ styled_dt(traffic_checked)
 ## Overview
 
 Here we visualize how is the general tendance with all our airports.
-
-### EU members
-
-In our data, we do not have only countries taking part of the European Union but also other european countries that are not member of it.
-We thus plot there distribution to visualize it.
-
-```{r}
-# EU
-eu_sum <- eu_countries_2019 %>% group_by(EU_2019) %>% count()
-eu_sum <- eu_sum %>% mutate(EU_2019 = ifelse(EU_2019 == 1, "Member", "Non member"))
-
-# Plot
-ggplot(eu_sum, aes(x = EU_2019, y = n, fill = EU_2019)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = n), vjust = 3, colour = 'white', size = 4) +
-  labs(title = "Repartition of european countries", x = "", y = "Number of countries", fill = "European Union (2019)") +
-  theme_minimal()
-```
 
 ### Ranking on the total airport traffic
 
@@ -262,7 +242,24 @@ ggplot2::ggplot(airports_best_ranked, aes(x = sumPassengers, y = reorder(Country
 ### Global trend on our data
 
 ::: panel-tabset
+
+### General
+
+Here we plot the mean between most relevant airports (One for each european country).
+
+```{r, echo=FALSE}
+traffic_mean <- traffic_checked %>%
+  group_by(Date) %>%
+  summarize(MeanPassengers = mean(Passengers, na.rm = TRUE))
+
+dygraphs::dygraph(traffic_mean, main = "Average Passengers per Month", xlab = "Date")
+```
+
 ### Our airports of interest
+
+Here we can see the trend of the 5 airports we kept for our analysis.
+
+```{r, echo=FALSE}
 
 ```{r, echo=FALSE}
 # List of the airports
@@ -279,21 +276,12 @@ ggplot2::ggplot(filtered_traffic_checked, aes(x = Date, y = Passengers, color = 
   labs(title = "Monthly Passengers per Country", x = "Date", y = "Number of Passengers")
 ```
 
-### General
-
-```{r}
-traffic_mean <- traffic_checked %>%
-  group_by(Date) %>%
-  summarize(MeanPassengers = mean(Passengers, na.rm = TRUE))
-
-dygraphs::dygraph(traffic_mean, main = "Average Passengers per Month", xlab = "Date")
-```
 :::
 
 
 ## Focus
 
-Quick view of the 3 airports with most traffic in our dataset.
+Quick view of our 5 airports.
 
 ::: panel-tabset
 
@@ -1532,8 +1520,8 @@ ggplot(data = combined_data_all, aes(x = time, y = scalediff, color = City)) +
 
 We add 3 politics to the dataset :
 
- - Borders main UE Period
- - Border non-UE Period
+ - Borders main EU Period
+ - Border non-EU Period
  - Negative tests Period
 
 We add them as dummies over the same period of our time series. We put a 1 when the policy is applied, and 0 when it is not. We did it by hand on Excel, it was simplier than with R.
