@@ -260,8 +260,6 @@ dygraphs::dygraph(traffic_mean, main = "Average Passengers per Month", xlab = "D
 Here we can see the trend of the 5 airports we kept for our analysis.
 
 ```{r, echo=FALSE}
-
-```{r, echo=FALSE}
 # List of the airports
 airports_to_keep <- c("PARIS-CHARLES DE GAULLE airport", "ADOLFO SUAREZ MADRID-BARAJAS airport", "ROMA/FIUMICINO airport", "KOBENHAVN/KASTRUP airport", "OSLO/GARDERMOEN airport")
 
