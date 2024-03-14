@@ -430,7 +430,7 @@ We thus take a look at the ACF and PACF behavior under the seasonality lag (12) 
 
 ### No differencing
 
-We start with anakysing our time serieswithout previous differencing.
+We start with analysing our time series without previous differencing.
 
 ```{r}
 # Trend
@@ -587,7 +587,7 @@ We thus run it to get the suggested coefficients with : `auto.arima`.
 paris_ts19_auto_params <- forecast::auto.arima(paris_ts19)
 ```
 
-Which gives us the following parameters : `r paris_ts19_auto_params$arma` *(p,q,P,[12],d,D)*.
+Which gives us the following parameters : `r format_arima_params(reorder_params(paris_ts19_auto_params$arma)[1:6])`
 
 
 But we are not gonna use it to build our SARIMA model for each airport. We will prefer the AIC and BIC criteria to choose the best parameters.

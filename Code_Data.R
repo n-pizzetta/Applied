@@ -170,6 +170,22 @@ legend("topright", legend = c("Original", "Trend"), col = c("blue", "red"),
 
 adf_test <- adf.test(paris_ts19, alternative = "stationary")
 
+
+# Extract relevant information
+adf_table <- data.frame(
+  Test = 'Augmented Dickey-Fuller Test',
+  Lag = adf_test$parameter,
+  Test_Statistic = adf_test$statistic,
+  p_Value = adf_test$p.value,
+  Critical_Values = I(list(adf_test$cval))
+)
+rownames(adf_table) <- adf_table$Test
+adf_table <- adf_table[, -1]
+
+# Use stargazer to create a table
+stargazer(adf_table, type = 'latex', summary = FALSE, rownames = TRUE)
+
+
 # Results of the ADF test
 print(adf_test)
 
@@ -196,6 +212,20 @@ legend("topright", legend = c("Original", "Trend"), col = c("blue", "red"),
 
 # ADF test on the diffrerence
 adf_test2 <- adf.test(paris_ts19_diff, alternative = "stationary")
+
+# Extract relevant information
+adf_table2 <- data.frame(
+  Test = 'Augmented Dickey-Fuller Test',
+  Lag = adf_test2$parameter,
+  Test_Statistic = adf_test2$statistic,
+  p_Value = adf_test2$p.value,
+  Critical_Values = I(list(adf_test2$cval))
+)
+rownames(adf_table2) <- adf_table2$Test
+adf_table2 <- adf_table2[, -1]
+
+# Use stargazer to create a table
+stargazer(adf_table2, type = 'latex', summary = FALSE, rownames = TRUE)
 
 # Results of the ADF test
 print(adf_test2)
