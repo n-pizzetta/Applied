@@ -779,7 +779,6 @@ Interpretation of the residuals :
 ```{r}
 sarima_aic_paris_residuals <- checkresiduals(sarima_aic_paris)
 p_value <- sarima_aic_paris_residuals$p.value
-checkresiduals(sarima_aic_paris)
 ```
 
 -   **The Ljung-Box test**, if we get $p-value < 0.05$, we reject the null hypothesis.
