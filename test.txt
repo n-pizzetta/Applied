@@ -1,0 +1,240 @@
+[1] 263
+[1] "MURCIA/AEROPUERTO DE LA REGION DE MURCIA AIRPORT" "RIZE-ARTVIN"                                     
+[3] "STRASBOURG airport System"                        "Unknown airport - FINLAND"                       
+[5] "Unknown airport - NORWAY"                         "Unknown airport - POLAND"                        
+[7] "Unknown airport - SLOVAKIA"                       "Unknown airport - SWITZERLAND"                   
+
+	Augmented Dickey-Fuller Test
+
+data:  paris_ts19
+Dickey-Fuller = -11.967, Lag order = 5, p-value = 0.01
+alternative hypothesis: stationary
+
+
+	Augmented Dickey-Fuller Test
+
+data:  paris_ts19_diff
+Dickey-Fuller = -3.5432, Lag order = 5, p-value = 0.03996
+alternative hypothesis: stationary
+
+[1] "\n# AIC parameters\nparis_ts19_aic_params <- find_aic_params(paris_ts19)\n# do not forget to save this new variable when you run this command\n# AIC parameters\nparis_ts19_bic_params <- find_bic_params(paris_ts19)\n# do not forget to save this new variable when you run this command\n# AIC parameters\nmadrid_ts19_aic_params <- find_aic_params(madrid_ts19)\n# do not forget to save this new variable when you run this command\n# AIC parameters\nmadrid_ts19_bic_params <- find_bic_params(madrid_ts19)\n# do not forget to save this new variable when you run this command\n# AIC parameters\nroma_ts19_aic_params <- find_aic_params(roma_ts19)\n# do not forget to save this new variable when you run this command\n# AIC parameters\nroma_ts19_bic_params <- find_bic_params(roma_ts19)\n# do not forget to save this new variable when you run this command\n# AIC parameters\ncopenhagen_ts19_aic_params <- find_aic_params(copenhagen_ts19)\n# do not forget to save this new variable when you run this command\n# AIC parameters\ncopenhagen_ts19_bic_params <- find_bic_params(copenhagen_ts19)\n# do not forget to save this new variable when you run this command\n# AIC parameters\noslo_ts19_aic_params <- find_aic_params(oslo_ts19)\n# do not forget to save this new variable when you run this command\n# AIC parameters\noslo_ts19_bic_params <- find_bic_params(oslo_ts19)\n# do not forget to save this new variable when you run this command\n"
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(2,1,1)(0,1,1)[12]
+Q* = 17.925, df = 20, p-value = 0.5924
+
+Model df: 4.   Total lags used: 24
+
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(2,1,1)(0,1,1)[12]
+Q* = 17.925, df = 20, p-value = 0.5924
+
+Model df: 4.   Total lags used: 24
+
+Series: paris_ts19 
+ARIMA(2,1,1)(0,1,1)[12] 
+
+Coefficients:
+         ar1     ar2      ma1     sma1
+      0.1507  0.2023  -0.8253  -0.7307
+s.e.  0.1080  0.0918   0.0741   0.0540
+
+sigma^2 = 2.819e+10:  log likelihood = -2733.31
+AIC=5476.62   AICc=5476.92   BIC=5493.18
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(0,1,1)(0,1,1)[12]
+Q* = 23.708, df = 22, p-value = 0.3627
+
+Model df: 2.   Total lags used: 24
+
+Series: paris_ts19 
+ARIMA(0,1,1)(0,1,1)[12] 
+
+Coefficients:
+          ma1     sma1
+      -0.6740  -0.7099
+s.e.   0.0599   0.0535
+
+sigma^2 = 2.867e+10:  log likelihood = -2735.58
+AIC=5477.17   AICc=5477.29   BIC=5487.11
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(2,1,2)(0,1,1)[12]
+Q* = 25.384, df = 19, p-value = 0.1483
+
+Model df: 5.   Total lags used: 24
+
+Series: madrid_ts19 
+ARIMA(2,1,2)(0,1,1)[12] 
+
+Coefficients:
+         ar1      ar2      ma1     ma2     sma1
+      0.7523  -0.4368  -1.0757  0.7115  -0.6635
+s.e.  0.1809   0.1303   0.1529  0.0975   0.0582
+
+sigma^2 = 1.135e+10:  log likelihood = -2639.1
+AIC=5290.21   AICc=5290.64   BIC=5310.09
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(0,1,1)(0,1,1)[12]
+Q* = 36.454, df = 22, p-value = 0.02713
+
+Model df: 2.   Total lags used: 24
+
+Series: madrid_ts19 
+ARIMA(0,1,1)(0,1,1)[12] 
+
+Coefficients:
+          ma1     sma1
+      -0.2692  -0.6648
+s.e.   0.0628   0.0588
+
+sigma^2 = 1.188e+10:  log likelihood = -2645.17
+AIC=5296.34   AICc=5296.46   BIC=5306.28
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(1,1,2)(0,1,1)[12]
+Q* = 11.9, df = 20, p-value = 0.9195
+
+Model df: 4.   Total lags used: 24
+
+Series: roma_ts19 
+ARIMA(1,1,2)(0,1,1)[12] 
+
+Coefficients:
+         ar1      ma1     ma2     sma1
+      0.6339  -1.3982  0.4176  -0.7427
+s.e.  0.2098   0.2391  0.2229   0.0557
+
+sigma^2 = 6.251e+10:  log likelihood = -2815.63
+AIC=5641.27   AICc=5641.57   BIC=5657.84
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(0,1,1)(0,1,1)[12]
+Q* = 22.391, df = 22, p-value = 0.4368
+
+Model df: 2.   Total lags used: 24
+
+Series: roma_ts19 
+ARIMA(0,1,1)(0,1,1)[12] 
+
+Coefficients:
+          ma1     sma1
+      -0.8562  -0.7206
+s.e.   0.0610   0.0504
+
+sigma^2 = 6.486e+10:  log likelihood = -2819.11
+AIC=5644.22   AICc=5644.34   BIC=5654.16
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(2,1,1)(1,1,2)[12]
+Q* = 19.215, df = 18, p-value = 0.3787
+
+Model df: 6.   Total lags used: 24
+
+         Point Forecast   Lo 80   Hi 80   Lo 95   Hi 95
+Jan 2020        1964826 1884155 2045497 1841450 2088201
+Feb 2020        2002225 1912100 2092351 1864390 2140060
+Mar 2020        2377801 2273255 2482348 2217911 2537692
+Apr 2020        2536481 2423497 2649464 2363688 2709274
+May 2020        2730314 2609415 2851214 2545414 2915215
+Jun 2020        2965301 2838269 3092334 2771022 3159581
+Jul 2020        3182616 3050285 3314948 2980232 3385000
+Aug 2020        2970399 2833649 3107148 2761258 3179539
+Sep 2020        2853102 2712563 2993640 2638166 3068037
+Oct 2020        2797853 2654077 2941628 2577967 3017739
+Nov 2020        2251896 2105329 2398463 2027741 2476051
+Dec 2020        2135961 1986983 2284939 1908119 2363803
+Jan 2021        2050543 1892876 2208211 1809412 2291675
+Feb 2021        2084071 1922180 2245961 1836481 2331660
+Mar 2021        2465582 2298937 2632227 2210721 2720443
+Apr 2021        2633650 2463400 2803900 2373275 2894024
+May 2021        2824912 2651364 2998460 2559493 3090331
+Jun 2021        3065677 2889349 3242006 2796007 3335348
+Jul 2021        3287818 3109043 3466593 3014405 3561231
+Aug 2021        3071386 2890490 3252282 2794729 3348043
+Sep 2021        2947482 2764726 3130238 2667981 3226983
+Oct 2021        2884481 2700098 3068865 2602491 3166471
+Nov 2021        2320577 2134762 2506392 2036397 2604757
+Dec 2021        2207182 2020108 2394256 1921077 2493287
+Jan 2022        2116244 1921910 2310578 1819035 2413453
+Feb 2022        2149904 1952395 2347412 1847841 2451966
+Mar 2022        2536129 2334751 2737507 2228147 2844110
+Apr 2022        2713218 2508951 2917485 2400819 3025617
+May 2022        2902902 2695928 3109875 2586363 3219440
+Jun 2022        3149227 2939964 3358490 2829187 3469267
+Jul 2022        3375967 3164665 3587268 3052808 3699125
+Aug 2022        3156673 2943592 3369754 2830793 3482553
+Sep 2022        3027864 2813209 3242519 2699577 3356150
+Oct 2022        2958985 2742942 3175027 2628576 3289393
+Nov 2022        2380735 2163462 2598008 2048445 2713025
+Dec 2022        2269895 2051534 2488256 1935940 2603849
+Jan 2023        2174819 1949016 2400622 1829483 2520155
+Feb 2023        2208983 1980035 2437932 1858837 2559130
+Mar 2023        2599473 2366589 2832358 2243307 2955640
+Apr 2023        2784362 2548552 3020172 2423722 3145002
+May 2023        2973061 2734486 3211635 2608193 3337928
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(1,1,0)(2,1,0)[12]
+Q* = 22.164, df = 21, p-value = 0.3901
+
+Model df: 3.   Total lags used: 24
+
+Series: copenhagen_ts19 
+ARIMA(1,1,0)(2,1,0)[12] 
+
+Coefficients:
+          ar1     sar1     sar2
+      -0.4463  -0.6536  -0.3239
+s.e.   0.0633   0.0652   0.0645
+
+sigma^2 = 4.101e+09:  log likelihood = -2536.29
+AIC=5080.59   AICc=5080.79   BIC=5093.84
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(0,1,1)(2,1,2)[12]
+Q* = 21.767, df = 19, p-value = 0.296
+
+Model df: 5.   Total lags used: 24
+
+Series: oslo_ts19 
+ARIMA(0,1,1)(2,1,2)[12] 
+
+Coefficients:
+          ma1    sar1     sar2     sma1    sma2
+      -0.6078  1.0119  -0.1696  -1.6701  0.7824
+s.e.   0.0603  0.1506   0.1242   0.1562  0.1080
+
+sigma^2 = 4.04e+09:  log likelihood = -2537.15
+AIC=5086.3   AICc=5086.73   BIC=5106.18
+
+	Ljung-Box test
+
+data:  Residuals from ARIMA(0,1,1)(0,1,1)[12]
+Q* = 29.691, df = 22, p-value = 0.1262
+
+Model df: 2.   Total lags used: 24
+
+Series: oslo_ts19 
+ARIMA(0,1,1)(0,1,1)[12] 
+
+Coefficients:
+          ma1     sma1
+      -0.5858  -0.6006
+s.e.   0.0624   0.0565
+
+sigma^2 = 4.312e+09:  log likelihood = -2541.67
+AIC=5089.34   AICc=5089.46   BIC=5099.28
