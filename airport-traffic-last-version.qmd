@@ -404,6 +404,8 @@ oslo_ts19 <- na.omit(oslo_ts19)
 
 ## Study on our data
 
+We will study the stationarity of our time series and then we will build our SARIMA model.
+
 ### Stationarity and parameters
 
 As first though, we saw previously on the graph of the Paris Charles de Gaulle airport that there is an ascending trend.
@@ -762,7 +764,7 @@ oslo_ts19_bic_params <- find_bic_params(oslo_ts19)
 ::: panel-tabset
 #### Model
 
-Parameters used : 'r paris_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
+Parameters used : `r format_arima_params(paris_ts19_aic_params$min_AIC_params)`
 
 ```{r}
 # Setting the parameters
@@ -776,18 +778,22 @@ sarima_aic_paris <- Arima(paris_ts19, order=non_seasonal_order, seasonal=list(or
 
 Interpretation of the residuals :
 
-```{r}
+```{r, echo=FALSE}
+# Residuals
 sarima_aic_paris_residuals <- checkresiduals(sarima_aic_paris)
+
+# Computing the p-value of the Ljung-Box test
 p_value <- sarima_aic_paris_residuals$p.value
 ```
 
--   **The Ljung-Box test**, if we get $p-value < 0.05$, we reject the null hypothesis.
-    This suggests that the error has a significant autocorrelation at some of the lags used in the test (up to lag 24 here).
-    Then our model would not capture adequately the time-dependency.
-    here, we have $p-value = `r p_value`$.
+-   **The Ljung-Box test**, $H_0 : Independant$,  $H_1 : Not Independant$
 
--   **The residuals time series plot**, helps us to check if our residuals look like white noise (meaning that our model has captured the underlying process correctly).
-    Here, our residuals fluctuate around zero, we do not see obvious patterns which is a good sign.
+    If we get $p-value < 0.05$, we reject the null hypothesis.
+    This suggests that the error has a significant autocorrelation at some of the lags used in the test (up to lag 24 here). Then our model would not capture adequately the time-dependency.
+    Here, we have $p-value = `r p_value` > 0.5$.
+
+-   **The residuals time series plot**,  helps us to check if our residuals look like white noise, indicating that our model has captured the underlying process accurately and suggesting that the error variances are consistent over time—a condition known as homoskedasticity. 
+    In our case, the residuals fluctuate around zero without displaying any obvious patterns or systematic change in the spread over time, which is a good sign both for the model's fit and the assumption of homoskedasticity.
 
 -   **The ACF of residuals**, helps us to check the autocorrelation within our residuals.
     In a good model we would expect the bars to be between both dashed blue lines.
@@ -798,6 +804,8 @@ p_value <- sarima_aic_paris_residuals$p.value
     By assumption, our residuals should look like a normal distribution with a mean of zero.
     Here, we have large pikes around zero, but also some big deviations around.
     Our residuals may not be normally distributed.
+    
+
 
 #### Prediction
 
@@ -886,7 +894,7 @@ ggplot(data = forecast_data_paris, aes(x = time, y = scalediff, color = Type)) +
 ::: panel-tabset
 #### Model
 
-Parameters used : 'r paris_ts19_bic_params$min_BIC_params` *(p,d,q)x(P,D,Q)[12]*
+Parameters used : `r format_arima_params(paris_ts19_bic_params$min_BIC_params)`
 
 ```{r}
 # Setting the parameters
@@ -929,7 +937,7 @@ sarima_bic_paris
 
 #### Model
 
-Parameters used : 'r madrid_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
+Parameters used : `r format_arima_params(madrid_ts19_aic_params$min_AIC_params)`
 
 ```{r}
 # Setting the parameters
@@ -1031,7 +1039,7 @@ theme_minimal()
 ::: panel-tabset
 #### Model
 
-Parameters used : 'r madrid_ts19_bic_params$min_BIC_params` *(p,d,q)x(P,D,Q)[12]*
+Parameters used : `r format_arima_params(madrid_ts19_bic_params$min_BIC_params)`
 
 ```{r}
 # Setting the parameters
@@ -1073,7 +1081,7 @@ sarima_bic_madrid
 ::: panel-tabset
 #### Model
 
-Parameters used : 'r roma_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
+Parameters used : `r format_arima_params(roma_ts19_aic_params$min_AIC_params)`
 
 ```{r}
 # Setting the parameters
@@ -1171,7 +1179,7 @@ ggplot(data = forecast_data_roma, aes(x = time, y = scalediff, color = Type)) +
 ::: panel-tabset
 #### Model
 
-Parameters used : 'r roma_ts19_bic_params$min_BIC_params` *(p,d,q)x(P,D,Q)[12]*
+Parameters used : `r format_arima_params(roma_ts19_bic_params$min_BIC_params)`
 
 ```{r}
 # Setting the parameters
@@ -1213,7 +1221,7 @@ sarima_bic_roma
 ::: panel-tabset
 #### Model
 
-Parameters used : 'r copenhagen_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
+Parameters used : `r format_arima_params(copenhagen_ts19_aic_params$min_AIC_params)`
 
 ```{r}
 # Setting the parameters
@@ -1312,7 +1320,7 @@ ggplot(data = forecast_data_copenhagen, aes(x = time, y = scalediff, color = Typ
 ::: panel-tabset
 #### Model
 
-Parameters used : 'r copenhagen_ts19_bic_params$min_BIC_params` *(p,d,q)x(P,D,Q)[12]*
+Parameters used : `r format_arima_params(copenhagen_ts19_bic_params$min_BIC_params)`
 
 ```{r}
 # Setting the parameters
@@ -1354,7 +1362,7 @@ sarima_bic_copenhagen
 ::: panel-tabset
 #### Model
 
-Parameters used : 'r oslo_ts19_aic_params$min_AIC_params` *(p,d,q)x(P,D,Q)[12]*
+Parameters used : `r format_arima_params(oslo_ts19_aic_params$min_AIC_params)`
 
 ```{r}
 # Setting the parameters
@@ -1454,7 +1462,7 @@ ggplot(data = forecast_data_oslo, aes(x = time, y = scalediff, color = Type)) +
 
 #### Model
 
-Parameters used : 'r oslo_ts19_bic_params$min_BIC_params` *(p,d,q)x(P,D,Q)[12]*
+Parameters used : `r format_arima_params(oslo_ts19_bic_params$min_BIC_params)`
 
 ```{r}
 # Setting the parameters

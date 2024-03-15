@@ -48,7 +48,7 @@ airports_dupli <- duplicated(traffic_mg)
 length(traffic_mg[airports_dupli,])
 traffic_mg <- unique(traffic_mg)
 
-# REMPLACER PAR UN STARGAZER
+# Display the first rows of the dataset
 stargazer(traffic_mg, 5)
 
 # We rotate the dataframe to do the time series
@@ -176,9 +176,9 @@ adf_table <- data.frame(
   Test = 'Augmented Dickey-Fuller Test',
   Lag = adf_test$parameter,
   Test_Statistic = adf_test$statistic,
-  p_Value = adf_test$p.value,
-  Critical_Values = I(list(adf_test$cval))
+  p_Value = adf_test$p.value
 )
+
 rownames(adf_table) <- adf_table$Test
 adf_table <- adf_table[, -1]
 
@@ -218,9 +218,9 @@ adf_table2 <- data.frame(
   Test = 'Augmented Dickey-Fuller Test',
   Lag = adf_test2$parameter,
   Test_Statistic = adf_test2$statistic,
-  p_Value = adf_test2$p.value,
-  Critical_Values = I(list(adf_test2$cval))
+  p_Value = adf_test2$p.value
 )
+
 rownames(adf_table2) <- adf_table2$Test
 adf_table2 <- adf_table2[, -1]
 

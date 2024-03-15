@@ -64,8 +64,23 @@ seasonal_order_paris_aic <- paris_ts19_aic_params$min_AIC_params[4:6]
 # Fitting the model and checking residuals
 sarima_aic_paris <- Arima(paris_ts19, order=non_seasonal_order_paris_aic, seasonal=list(order=seasonal_order_paris_aic, period=12))
 sarima_aic_paris_residuals <- checkresiduals(sarima_aic_paris)
+
+# Computing the p-value of the Ljung-Box test
 p_value <- sarima_aic_paris_residuals$p.value
-checkresiduals(sarima_aic_paris)
+
+
+# Extract relevant information of the Ljung-Box test
+lb_aic_table <- data.frame(
+  Test = 'Ljung-Box Test',
+  DF = sarima_aic_paris_residuals$parameter,
+  Test_Statistic = sarima_aic_paris_residuals$statistic,
+  p_Value = sarima_aic_paris_residuals$p.value
+)
+rownames(lb_aic_table) <- lb_aic_table$Test
+lb_aic_table <- lb_aic_table[, -1]
+
+# Use stargazer to create a table
+stargazer(lb_aic_table, type = 'latex', summary = FALSE, rownames = TRUE)
 
 # Plot of the prediction of the 41 next months (end of the raw data)
 forecasts_aic_paris <- forecast(sarima_aic_paris, h=41)
@@ -132,7 +147,20 @@ seasonal_order_paris_bic <- paris_ts19_bic_params$min_BIC_params[4:6]
 
 # Fitting the model and checking residuals
 sarima_bic_paris <- Arima(paris_ts19, order=non_seasonal_order_paris_bic, seasonal=list(order=seasonal_order_paris_bic, period=12))
-checkresiduals(sarima_bic_paris)
+sarima_bic_paris_residuals <- checkresiduals(sarima_bic_paris)
+
+# Extract relevant information of the Ljung-Box test
+lb_bic_table <- data.frame(
+  Test = 'Ljung-Box Test',
+  DF = sarima_bic_paris_residuals$parameter,
+  Test_Statistic = sarima_bic_paris_residuals$statistic,
+  p_Value = sarima_bic_paris_residuals$p.value
+)
+rownames(lb_bic_table) <- lb_bic_table$Test
+lb_bic_table <- lb_bic_table[, -1]
+
+# Use stargazer to create a table
+stargazer(lb_bic_table, type = 'latex', summary = FALSE, rownames = TRUE)
 
 # Plot of the prediction of the 12 next months
 forecasts_bic_paris <- forecast(sarima_bic_paris, h=41)
