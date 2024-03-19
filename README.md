@@ -2,8 +2,8 @@
 
 Two files have to be run :
 
-- code-data.R
-- code-model.R
+- Code-Data.R
+- Code-Model.R
 
 The other files are called in the previous one.
 
