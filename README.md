@@ -10,4 +10,4 @@ The other files are called in the previous one.
 
 
 You can have a full access to our results following this link :
-[Airport Traffic](airport-traffic-last-version.html)
+[Airport Traffic](https://n-pizzetta.github.io/Applied/airport-traffic-last-version.html)
